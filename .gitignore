@@ -1,0 +1,5 @@
+/src/MicrocontrollerSupport/.vs
+/src/MicrocontrollerSupport/MicrocontrollerSupport.sln
+/src/MicrocontrollerSupport/MicrocontrollerSupport/*.vcxproj*
+/src/MicrocontrollerSupport/MicrocontrollerSupport/Debug/
+/src/MicrocontrollerSupport/Debug/
