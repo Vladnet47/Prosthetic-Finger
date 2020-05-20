@@ -17,9 +17,9 @@ public:
 	Command(const Command& other);
 	~Command();
 
-	inline int type() const;
-	inline int nData() const;
-	inline char* bData() const;
+	int type() const;
+	int nData() const;
+	char* bData() const;
 private:
 	int commandType;
 	int numericData;

@@ -1,16 +1,19 @@
 #include <Servo.h>
-#include "CommandBuffer.h"
+#include "CommandSelector.h"
+#include "Command.h"
 
 #define SERVO 22
 #define MOTOR_OFF 85
 
 // Command format: #CCCCDDDDDDD, where C is the command and D is integer data
-const char commandId = '#';
-const int commandLength = 4;
+const int BUFFER_SIZE = 10;
+const char COMMAND_ID = '#';
+const int COMMAND_LENGTH = 4;
 
 Servo motor;
 
-CommandBuffer buffer(5, false);
+SelectionOptions options(BUFFER_SIZE);
+CommandSelector commandSelector(options);
 
 void setup() { 
     Serial.begin (9600);
@@ -27,15 +30,16 @@ void loop() {
         
         Command* command = parseCommand(commandString);
 
-        if (command->type == UNDEFINED) {
+        if (command == nullptr) {
             Serial.print("Unable to parse command: ");
             Serial.print(commandString);
         } else {
             Serial.print("Successfully inserted command: type=");
-            Serial.print(command->type);
-            Serial.print(" data=");
-            Serial.println(command->data);
-            insertCommandIntoBuffer(command);
+            Serial.print(command->type());
+            Serial.print(" nData=");
+            Serial.println(command->nData());
+            
+            commandSelector.add(command);
         }
 
         delete command;
@@ -54,46 +58,38 @@ String readCommandFromSerial() {
 // #CCCCDD, where C is the command (CONT, EXTD, etc) and D is the optional data (integer)
 // Returns command object of type UNDEFINED if unable to parse command
 Command* parseCommand(String &command) {
-    Command* result = new Command{ UNDEFINED, 0 };
-    
     // Verify that the string is in correct format
     int length = command.length();
-    if (length <= commandLength || command.charAt(0) != commandId) {
-        return result;
+    if (length <= COMMAND_LENGTH || command.charAt(0) != COMMAND_ID) {
+        return nullptr;
     }
 
+    int type = UNDEFINED;
+    int numericData = 0;
+
     // Extract numerical data if available
-    int dataIndex = commandLength + 1;
+    int dataIndex = COMMAND_LENGTH + 1;
     if (length > dataIndex) {
-        result->data = (int) command.substring(dataIndex).toInt();
+        numericData = (int) command.substring(dataIndex).toInt();
     }
 
     // Parse command type from string
     String commandType = command.substring(1, dataIndex);
     if (commandType.equals("STOP")) {
-        result->type = STOP;
+        type = STOP;
     } 
     else if (commandType.equals("CONT")) {
-        result->type = CONTRACT_HAND;
+        type = CONTRACT_HAND;
     }
     else if (commandType.equals("EXTD")) {
-        result->type = EXTEND_HAND;
+        type = EXTEND_HAND;
     }
     else if (commandType.equals("PRNT")) {
-        result->type = LIST_BUFFER;
+        type = LIST_BUFFER;
     }
 
-    return result;
+    return new Command(type, numericData);
 }
-
-void insertCommandIntoBuffer(Command* command) {
-    if (command->type == UNDEFINED) {
-        return;
-    }
-
-    buffer.push(command->type, command->data);
-}
-s
 
 
 // Rotate motor at specified speed (positive = clockwise)
