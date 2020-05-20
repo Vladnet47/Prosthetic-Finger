@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COMMANDBUFFER
+#define COMMANDBUFFER
 
 // Command sent to microcontroller
 struct Command {
@@ -8,9 +9,11 @@ struct Command {
 
 // Types of defined commands
 enum CommandType {
-	DEFAULT,
-	CONTRACT_HAND,
-	EXTEND_HAND,
+    UNDEFINED,
+    STOP,
+    CONTRACT_HAND,
+    EXTEND_HAND,
+    LIST_BUFFER
 };
 
 // Buffer that keeps track of a specified number of incoming commands
@@ -30,6 +33,16 @@ public:
 	~CommandBuffer() {
 		delete[] this->commandList;
 	}
+
+    Command* get(int index) {
+        if (this->isEmpty() || index >= this->currentSize) {
+            return nullptr;
+        }
+
+        int convertedIndex = this->incrementIndex(this->start, index);
+
+        return new Command{ this->commandList[convertedIndex].type, this->commandList[convertedIndex].data };
+    }
 
 	Command* peek() {
 		if (this->isEmpty()) {
@@ -110,3 +123,5 @@ private:
 		return (currentSize >= 0) ? (index + amount) % maxSize : 0;
 	}
 };
+
+#endif
