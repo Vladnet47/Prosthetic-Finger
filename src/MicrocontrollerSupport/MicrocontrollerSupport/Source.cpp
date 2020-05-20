@@ -1,143 +1,66 @@
-#include "CommandBuffer.h"
+#include "Queue.h"
+#include "Command.h"
 #include <iostream>
 
 using namespace std;
 
+const int QUEUE_SIZE = 3;
 
-bool testQueueCB() {
-	CommandBuffer* buffer = new CommandBuffer(3);
-	if (buffer == nullptr) {
-		cout << "ERROR: Failed to construct buffer." << endl;
-		return false;
-	}
+template <class T>
+void printQueue(Queue<T>& queue) {
+	const int size = queue.size();
 
-	if (buffer->size() != 0 || !buffer->isEmpty()) {
-		cout << "ERROR: Incorrect buffer size." << endl;
-		return false;
-	}
-
-	buffer->push(CONTRACT_HAND, 2);
-	buffer->push(EXTEND_HAND);
-	buffer->push(15);
-
-	if (buffer->size() != 3 || buffer->isEmpty()) {
-		cout << "ERROR: Incorrect buffer size." << endl;
-		return false;
-	}
-
-	Command* next = buffer->peek();
-	if (next->type != CONTRACT_HAND || next->data != 2 || buffer->size() != 3) {
-		cout << "ERROR: Peek function fails." << endl;
-		return false;
-	}
-	delete next;
-
-	next = buffer->pop();
-	if (next->type != CONTRACT_HAND || next->data != 2 || buffer->size() != 2) {
-		cout << "ERROR: Pop function fails." << endl;
-		return false;
-	}
-	delete next;
-
-	next = buffer->pop();
-	if (next->type != EXTEND_HAND || next->data != 0 || buffer->size() != 1) {
-		cout << "ERROR: Pop function fails." << endl;
-		return false;
-	}
-	delete next;
-
-	next = buffer->pop();
-	if (next->type != 15 || next->data != 0 || buffer->size() != 0) {
-		cout << "ERROR: Pop function fails." << endl;
-		return false;
-	}
-	delete next;
-
-	buffer->push(CONTRACT_HAND, 2);
-	buffer->push(EXTEND_HAND);
-	buffer->push(EXTEND_HAND);
-	buffer->push(EXTEND_HAND);
-
-	while (!buffer->isEmpty()) {
-		next = buffer->pop();
-		if (next == nullptr || next->type != EXTEND_HAND) {
-			cout << "ERROR: Prioritize new fails, old values not replaced." << endl;
-			return false;
+	if (size > 0) {
+		T* list = queue.list();
+		for (int i = 0; i < size; ++i) {
+			cout << "[" << list[i] << "]";
 		}
-		delete next;
 	}
 
-	next = buffer->pop();
-	if (next != nullptr) {
-		cout << "ERROR: Empty buffer not returning nullptr during pop." << endl;
-		return false;
-	}
-	delete next;
-
-	buffer->push(CONTRACT_HAND, 2);
-	buffer->push(EXTEND_HAND);
-	Command* list = buffer->list();
-	if (list == nullptr || list[0].type != CONTRACT_HAND || list[1].type != EXTEND_HAND) {
-		cout << "ERROR: Failed to list commands." << endl;
-		return false;
-	}
-	delete[] list;
-
-	buffer->clear();
-	if (buffer->size() != 0) {
-		cout << "ERROR: Failed to clear buffer." << endl;
-		return false;
+	const int emptySlots = QUEUE_SIZE - size;
+	for (int i = 0; i < emptySlots; ++i) {
+		cout << "[]";
 	}
 
-	delete buffer;
-
-	buffer = new CommandBuffer(3, false);
-	buffer->push(CONTRACT_HAND, 2);
-	buffer->push(EXTEND_HAND);
-	buffer->push(EXTEND_HAND);
-	buffer->push(EXTEND_HAND);
-	buffer->push(EXTEND_HAND);
-	
-	next = buffer->peek();
-	if (next->type != CONTRACT_HAND) {
-		cout << "ERROR: New values replacing old ones when they should not." << endl;
-		return false;
-	}
-	delete next;
-	delete buffer;
-
-	return true;
-}
-
-void print(Command* list, int size) {
-	for (int i = 0; i < size; ++i) {
-		cout << "[type=" << list[i].type << ", data=" << list[i].data << "] ";
-	}
 	cout << endl;
 }
 
 int main(int argc, char* argv[]) {
-	// Test suite
-	if (testQueueCB()) {
-		cout << "All tests passed." << endl;
-	}
-	else {
-		cout << "Some tests failed." << endl;
-	}
+	Queue<int> queue(QUEUE_SIZE);
 
-	// Visual example of buffer in action
-	CommandBuffer* buffer = new CommandBuffer(3);
-	buffer->push(CONTRACT_HAND, 2);
-	buffer->push(CONTRACT_HAND, 2);
-	buffer->push(EXTEND_HAND, 2);
-	Command* list = buffer->list();
-	print(list, buffer->size());
-	delete list;
-	buffer->push(CONTRACT_HAND, 2);
-	list = buffer->list();
-	print(list, buffer->size());
-	delete list;
-	delete buffer;
+	int* i = new int(1);
+	int* j = new int(2);
+	int* k = new int(3);
+
+	printQueue(queue);
+
+	queue.push(i);
+	printQueue(queue);
+
+	queue.push(j);
+	queue.push(k);
+	printQueue(queue);
+
+	queue.push(i);
+	printQueue(queue);
+
+	int* c = queue.popFront();
+	if (*c != *j) {
+		cout << "Pop front failed." << endl;
+	}
+	printQueue(queue);
+
+	int* d = queue.popBack();
+	if (*d != *i) {
+		cout << "Pop back failed." << endl;
+	}
+	printQueue(queue);
+
+	int* e = queue.get(0);
+	if (*e != *k) {
+		cout << "Get failed." << endl;
+	}
+	printQueue(queue);
 
 	return 0;
 }

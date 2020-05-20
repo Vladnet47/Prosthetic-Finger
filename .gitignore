@@ -3,3 +3,4 @@
 /src/MicrocontrollerSupport/MicrocontrollerSupport/*.vcxproj*
 /src/MicrocontrollerSupport/MicrocontrollerSupport/Debug/
 /src/MicrocontrollerSupport/Debug/
+!/src/Arduino/*.ino

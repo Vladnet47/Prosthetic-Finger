@@ -93,7 +93,7 @@ void insertCommandIntoBuffer(Command* command) {
 
     buffer.push(command->type, command->data);
 }
-
+s
 
 
 // Rotate motor at specified speed (positive = clockwise)
