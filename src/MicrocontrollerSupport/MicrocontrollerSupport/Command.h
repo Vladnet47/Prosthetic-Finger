@@ -1,6 +1,4 @@
 #pragma once
-#include <cstring>
-//#include <Arduino.h>
 
 // Types of defined commands
 enum CommandType {
@@ -15,11 +13,11 @@ enum CommandType {
 
 class Command {
 public:
-	Command(int commandType = UNDEFINED, int numericData = 0, char* blobData = nullptr, int chars = 0);
+	Command(enum CommandType commandType = UNDEFINED, int numericData = 0, char* blobData = nullptr, int chars = 0);
 	Command(const Command& other);
 	~Command();
 
-	int type() const;
+	enum CommandType type() const;
 	int nData() const;
 	char* bData() const;
 	int bLength() const;
@@ -28,7 +26,7 @@ public:
 	bool operator!=(const Command& other) const;
 
 private:
-	int commandType;
+	enum CommandType commandType;
 	int numericData;
 	char* blobData;
 	int blobLength;

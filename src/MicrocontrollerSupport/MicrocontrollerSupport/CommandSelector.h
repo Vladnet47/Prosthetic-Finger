@@ -23,7 +23,6 @@ public:
 	void clear();
 	int size() const;
 	bool isEmpty() const;
-	const Command** view() const;
 private:
 	Queue<Command>* buffer;
 };

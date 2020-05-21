@@ -1,6 +1,6 @@
 #include "Command.h"
 
-Command::Command(int commandType, int numericData, char* blobData, int chars) {
+Command::Command(enum CommandType commandType, int numericData, char* blobData, int chars) {
 	this->commandType = commandType;
 	this->numericData = numericData;
 	this->blobData = blobData;
@@ -19,7 +19,7 @@ Command::~Command() {
 	this->clear();
 }
 
-int Command::type() const {
+enum CommandType Command::type() const {
 	return this->commandType;
 }
 
