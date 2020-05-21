@@ -1,3 +1,13 @@
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
+#ifdef _DEBUG
+#define new new( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+#else
+#define new new
+#endif
+
 #include "Queue.h"
 #include "Command.h"
 #include <iostream>
@@ -6,61 +16,68 @@ using namespace std;
 
 const int QUEUE_SIZE = 3;
 
-template <class T>
-void printQueue(Queue<T>& queue) {
-	const int size = queue.size();
-
-	if (size > 0) {
-		T* list = queue.list();
-		for (int i = 0; i < size; ++i) {
-			cout << "[" << list[i] << "]";
-		}
-	}
-
-	const int emptySlots = QUEUE_SIZE - size;
-	for (int i = 0; i < emptySlots; ++i) {
-		cout << "[]";
-	}
-
-	cout << endl;
-}
+//template <class T>
+//void printQueue(Queue<T>& queue) {
+//	const int size = queue.size();
+//
+//	if (size > 0) {
+//		T* list = queue.list();
+//		for (int i = 0; i < size; ++i) {
+//			cout << "[" << list[i] << "]";
+//		}
+//
+//		delete[] list;
+//	}
+//
+//	const int emptySlots = QUEUE_SIZE - size;
+//	for (int i = 0; i < emptySlots; ++i) {
+//		cout << "[]";
+//	}
+//
+//	cout << endl;
+//}
 
 int main(int argc, char* argv[]) {
-	Queue<int> queue(QUEUE_SIZE);
+	Queue<int> *q = new Queue<int>(QUEUE_SIZE);
+	auto& queue = *q;
 
-	int* i = new int(1);
-	int* j = new int(2);
-	int* k = new int(3);
+	int i = 6;
+	int j = 1;
+	int k = 5;
 
-	printQueue(queue);
+	//printQueue(queue);
 
 	queue.push(i);
-	printQueue(queue);
+	//printQueue(queue);
 
 	queue.push(j);
 	queue.push(k);
-	printQueue(queue);
+	//printQueue(queue);
 
 	queue.push(i);
-	printQueue(queue);
+	//printQueue(queue);
 
-	int* c = queue.popFront();
-	if (*c != *j) {
+	const int* c = queue.popFront();
+	if (*c != j) {
 		cout << "Pop front failed." << endl;
 	}
-	printQueue(queue);
+	//printQueue(queue);
 
-	int* d = queue.popBack();
-	if (*d != *i) {
+	const int* d = queue.popBack();
+	if (*d != i) {
 		cout << "Pop back failed." << endl;
 	}
-	printQueue(queue);
+	//printQueue(queue);
 
-	int* e = queue.get(0);
-	if (*e != *k) {
+	const int* e = queue.get(0);
+	if (*e != k) {
 		cout << "Get failed." << endl;
 	}
-	printQueue(queue);
+	//printQueue(queue);
+
+	delete q;
+
+	_CrtDumpMemoryLeaks();
 
 	return 0;
 }

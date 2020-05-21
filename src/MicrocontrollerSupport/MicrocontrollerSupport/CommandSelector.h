@@ -17,9 +17,13 @@ class CommandSelector {
 public:
 	CommandSelector(const SelectionOptions& options);
 	~CommandSelector();
-	void add(const Command* command);
-	Command* next();
+	void add(const Command& command);
+	const Command* next();
+	const Command* get(const int index) const;
 	void clear();
+	int size() const;
+	bool isEmpty() const;
+	const Command** view() const;
 private:
 	Queue<Command>* buffer;
 };
