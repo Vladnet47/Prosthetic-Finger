@@ -9,6 +9,7 @@
 #endif
 
 #include "FixedSizeBuffer.h"
+#include "ElasticBuffer.h"
 #include "Command.h"
 #include <iostream>
 #include "CommandInterpreter.h"
@@ -160,8 +161,8 @@ void testInterpreter() {
 	cout << "All Interpreter tests passed." << endl;
 }
 
-void testIntFixedSizeBuffer() {
-	FixedSizeBuffer<int> *q = new FixedSizeBuffer<int>(BUFFER_SIZE);
+void testBuffer() {
+	ElasticBuffer<int> *q = new ElasticBuffer<int>();
 	auto& FixedSizeBuffer = *q;
 
 	int i = 6;
@@ -181,23 +182,23 @@ void testIntFixedSizeBuffer() {
 	//printFixedSizeBuffer(FixedSizeBuffer);
 
 	const int* c = FixedSizeBuffer.pop();
-	if (*c != j) {
+	if (*c != i) {
 		cout << "Pop failed." << endl;
 	}
 	delete c;
 	//printFixedSizeBuffer(FixedSizeBuffer);
 
-	const int* e = FixedSizeBuffer.get(0);
-	if (*e != k) {
+	/*const int* e = FixedSizeBuffer.get(1);
+	if (*e != j) {
 		cout << "Get failed." << endl;
-	}
+	}*/
 	//printFixedSizeBuffer(FixedSizeBuffer);
 
 	delete q;
 }
 
 int main(int argc, char* argv[]) {
-	testIntFixedSizeBuffer();
+	testBuffer();
 
 	_CrtDumpMemoryLeaks();
 

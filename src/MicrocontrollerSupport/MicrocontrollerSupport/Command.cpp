@@ -1,5 +1,4 @@
 #include "Command.h"
-#include <iostream>
 
 Command::Command(enum CommandType commandType, int numericData, const char* blobData, int blobLength) {
 	this->commandType = commandType;
