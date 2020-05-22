@@ -1,10 +1,15 @@
 #include "Command.h"
+#include <iostream>
 
 Command::Command(enum CommandType commandType, int numericData, char* blobData, int blobLength) {
 	this->commandType = commandType;
 	this->numericData = numericData;
 	this->blobData = blobData;
 	this->blobLength = blobLength;
+
+	if (blobLength == 0 && blobData != nullptr) {
+		std::cout << "uhoh" << std::endl;
+	}
 }
 
 Command::Command(const Command& other) {
@@ -37,7 +42,10 @@ int Command::bLength() const {
 
 // Removes all command data and sets to UNDEFINED
 void Command::clear() {
-	delete[] this->blobData;
+	if (this->blobLength > 0) {
+		delete[] this->blobData;
+	}
+	
 	this->commandType = UNDEFINED;
 	this->numericData = 0;
 	this->blobData = 0;

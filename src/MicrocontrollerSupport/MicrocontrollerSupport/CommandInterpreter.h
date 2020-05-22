@@ -3,7 +3,7 @@
 
 struct CommandTypeMap {
 public:
-	CommandTypeMap(const char* raw, const enum CommandType val) {
+	CommandTypeMap(const char raw[], const enum CommandType val) {
 		this->rawFormat = raw;
 		this->convertedValue = val;
 	}
