@@ -8,9 +8,11 @@ public:
 	virtual const T* peekBack() const;
 	virtual const T* pop();
 	virtual void push(const T& item);
-	virtual int size() const;
-	virtual bool isEmpty() const;
+	int size() const;
+	bool isEmpty() const;
 	virtual void clear();
+protected:
+	int numberOfItems;
 };
 
 template <class T>
@@ -38,13 +40,15 @@ void Buffer<T>::push(const T& item) {}
 
 template <class T>
 int Buffer<T>::size() const {
-	return 0;
+	return this->isEmpty() ? 0 : this->numberOfItems;
 }
 
 template <class T>
 bool Buffer<T>::isEmpty() const {
-	return true;
+	return this->numberOfItems <= 0;
 }
 
 template <class T>
-void Buffer<T>::clear() {}
+void Buffer<T>::clear() {
+	this->numberOfItems = 0;
+}

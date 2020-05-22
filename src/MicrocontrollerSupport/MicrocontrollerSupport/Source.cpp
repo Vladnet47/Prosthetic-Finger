@@ -161,8 +161,50 @@ void testInterpreter() {
 	cout << "All Interpreter tests passed." << endl;
 }
 
-void testBuffer() {
+void testEBuffer() {
 	ElasticBuffer<int> *q = new ElasticBuffer<int>();
+	auto& ElasticBuffer = *q;
+
+	int i = 6;
+	int j = 1;
+	int k = 5;
+
+	//printFixedSizeBuffer(FixedSizeBuffer);
+
+	ElasticBuffer.push(i);
+	//printFixedSizeBuffer(FixedSizeBuffer);
+
+	ElasticBuffer.push(j);
+	ElasticBuffer.push(k);
+	//printFixedSizeBuffer(FixedSizeBuffer);
+
+	ElasticBuffer.push(i);
+	//printFixedSizeBuffer(FixedSizeBuffer);
+
+	const int* c = ElasticBuffer.pop();
+	if (*c != i) {
+		cout << "Pop failed." << endl;
+	}
+	delete c;
+	//printFixedSizeBuffer(FixedSizeBuffer);
+
+	const int* d = ElasticBuffer.remove(2);
+	if (*d != i) {
+		cout << "Remove failed." << endl;
+	}
+	delete d;
+
+	const int* e = ElasticBuffer.get(1);
+	if (*e != k) {
+		cout << "Get failed." << endl;
+	}
+	//printFixedSizeBuffer(FixedSizeBuffer);
+
+	delete q;
+}
+
+void testFBuffer() {
+	FixedSizeBuffer<int> *q = new FixedSizeBuffer<int>(3);
 	auto& FixedSizeBuffer = *q;
 
 	int i = 6;
@@ -182,23 +224,31 @@ void testBuffer() {
 	//printFixedSizeBuffer(FixedSizeBuffer);
 
 	const int* c = FixedSizeBuffer.pop();
-	if (*c != i) {
+	if (*c != j) {
 		cout << "Pop failed." << endl;
 	}
 	delete c;
 	//printFixedSizeBuffer(FixedSizeBuffer);
 
-	/*const int* e = FixedSizeBuffer.get(1);
-	if (*e != j) {
+	const int* e = FixedSizeBuffer.get(1);
+	if (*e != i) {
 		cout << "Get failed." << endl;
-	}*/
+	}
 	//printFixedSizeBuffer(FixedSizeBuffer);
 
 	delete q;
 }
 
 int main(int argc, char* argv[]) {
-	testBuffer();
+	cout << "Testing Elastic Buffer" << endl;
+	testEBuffer();
+	cout << "All Tests Done" << endl;
+	cout << endl;
+
+	cout << "Testing Fixed Size Buffer" << endl;
+	testFBuffer();
+	cout << "All Tests Done" << endl;
+	cout << endl;
 
 	_CrtDumpMemoryLeaks();
 

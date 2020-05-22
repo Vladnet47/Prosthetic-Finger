@@ -11,12 +11,9 @@ public:
 	const T* peekBack() const;
 	const T* pop();
 	void push(const T& item);
-	int size() const;
-	bool isEmpty() const;
 	void clear();
 	void toggleReplaceOld(const bool replaceOld);
 private:
-	int numberOfItems;
 	int maximumNumberOfItems;
 	const T** items;
 	int start;
@@ -80,7 +77,7 @@ const T* FixedSizeBuffer<T>::pop() {
 	const T* result = this->peekFront();
 
 	if (result != nullptr) {
-		--this->numberOfItems;
+		--Buffer<T>::numberOfItems;
 		this->items[this->start] = nullptr;
 
 		this->start = this->increment(this->start);
@@ -111,18 +108,8 @@ void FixedSizeBuffer<T>::push(const T& item) {
 		this->start = this->increment(this->start);
 	}
 	else {
-		++this->numberOfItems;
+		++Buffer<T>::numberOfItems;
 	}
-}
-
-template <class T>
-int FixedSizeBuffer<T>::size() const {
-	return this->isEmpty() ? 0 : this->numberOfItems;
-}
-
-template <class T>
-bool FixedSizeBuffer<T>::isEmpty() const {
-	return this->numberOfItems <= 0;
 }
 
 template <class T>
@@ -136,7 +123,7 @@ void FixedSizeBuffer<T>::clear() {
 
 	this->start = 0;
 	this->end = 0;
-	this->numberOfItems = 0;
+	Buffer<T>::numberOfItems = 0;
 }
 
 template<class T>

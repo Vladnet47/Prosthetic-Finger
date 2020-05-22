@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 #include "Buffer.h"
 
 template <class T>
@@ -10,12 +9,12 @@ public:
 	const T* get(const int index) const;
 	const T* peekFront() const;
 	const T* peekBack() const;
+	const T* remove(const int index);
 	const T* pop();
 	void push(const T& item);
-	int size() const;
-	bool isEmpty() const;
 	void clear();
 private:
+	// Node for bidirectional linked list
 	struct BufferNode {
 		BufferNode(const T* item = nullptr) {
 			this->next = nullptr;
@@ -23,7 +22,6 @@ private:
 			this->item = item;
 		}
 		~BufferNode() {
-			std::cout << "destructor called" << std::endl;
 			delete this->item;
 		}
 		const T* item;
@@ -31,7 +29,7 @@ private:
 		BufferNode* prev;
 	};
 
-	int numberOfItems;
+	// Bidirectional linked list of nodes
 	BufferNode* head;
 	BufferNode* tail;
 };
@@ -48,13 +46,14 @@ ElasticBuffer<T>::~ElasticBuffer() {
 }
 
 template <class T>
+// Returns pointer to item at target index, or nullptr if index is out of bounds or buffer is empty
 const T* ElasticBuffer<T>::get(const int index) const {
-	if (index < 0 || index >= this->numberOfItems || this->isEmpty()) {
+	if (index < 0 || index >= Buffer<T>::numberOfItems || this->isEmpty()) {
 		return nullptr;
 	}
 
 	BufferNode* temp = this->head;
-	for (int i = 1; i < index; ++i) {
+	for (int i = 1; i <= index; ++i) {
 		temp = temp->next;
 	}
 
@@ -62,16 +61,56 @@ const T* ElasticBuffer<T>::get(const int index) const {
 }
 
 template <class T>
+// Returns pointer to first item in buffer, or nullptr if buffer is empty
 const T* ElasticBuffer<T>::peekFront() const {
 	return this->isEmpty() ? nullptr : this->head->item;
 }
 
 template <class T>
+// Returns pointer to last item in buffer, or nullptr if buffer is empty
 const T* ElasticBuffer<T>::peekBack() const {
 	return this->isEmpty() ? nullptr : this->tail->item;
 }
 
 template <class T>
+// Removes item at target index from buffer and returns pointer to it
+const T* ElasticBuffer<T>::remove(const int index) {
+	// Return nullptr if invalid index or empty buffer
+	if (index < 0 || index >= Buffer<T>::numberOfItems || this->isEmpty()) {
+		return nullptr;
+	}
+	// Return first value
+	else if (index == 0) {
+		return this->pop();
+	}
+	// Return value besides first
+	else {
+		// Set temp pointer to buffer node prior to target index
+		BufferNode* temp = this->head;
+		for (int i = 1; i < index; ++i) {
+			temp = temp->next;
+		}
+
+		// Extract data from the next buffer node
+		const T* result = temp->next->item;
+		temp->next->item = nullptr;
+
+		// Delete next buffer node
+		BufferNode* next = temp->next->next;
+		delete temp->next;
+
+		// Fix pointers
+		temp->next = next;
+		if (next != nullptr) {
+			next->prev = temp;
+		}
+
+		return result;
+	}
+}
+
+template <class T>
+// Removes first item from buffer and returns pointer to it
 const T* ElasticBuffer<T>::pop() {
 	if (this->isEmpty()) {
 		return nullptr;
@@ -91,13 +130,14 @@ const T* ElasticBuffer<T>::pop() {
 		temp->prev = nullptr;
 		delete this->head;
 		this->head = temp;
-		--this->numberOfItems;
+		--Buffer<T>::numberOfItems;
 	}
 
 	return result;
 }
 
 template <class T>
+// Duplicates and appends item to the end of the buffer
 void ElasticBuffer<T>::push(const T& item) {
 	BufferNode* temp = new BufferNode(new const T(item));
 
@@ -111,20 +151,11 @@ void ElasticBuffer<T>::push(const T& item) {
 		this->tail = this->tail->next;
 	}
 
-	++this->numberOfItems;
+	++Buffer<T>::numberOfItems;
 }
 
 template <class T>
-int ElasticBuffer<T>::size() const {
-	return this->isEmpty() ? 0 : this->numberOfItems;
-}
-
-template <class T>
-bool ElasticBuffer<T>::isEmpty() const {
-	return this->numberOfItems <= 0;
-}
-
-template <class T>
+// Deletes all items in buffer and sets class members to empty state
 void ElasticBuffer<T>::clear() {
 	// Delete all items in linked list
 	BufferNode* temp;
@@ -135,5 +166,5 @@ void ElasticBuffer<T>::clear() {
 	}
 
 	this->tail = nullptr;
-	this->numberOfItems = 0;
+	Buffer<T>::numberOfItems = 0;
 }
