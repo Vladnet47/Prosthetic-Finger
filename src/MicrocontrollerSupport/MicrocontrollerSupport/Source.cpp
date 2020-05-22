@@ -39,6 +39,7 @@ const int QUEUE_SIZE = 3;
 //}
 
 void testInterpreter() {
+	const CommandInterpreter* commandInterpreter = new CommandInterpreter();
 	const Command* contract0 = new Command(CONTRACT_HAND, 0);
 	const Command* contract12 = new Command(CONTRACT_HAND, -12);
 
@@ -55,92 +56,91 @@ void testInterpreter() {
 	char* c11 = new char[9]{ '#', 'C', 'O', 'D', 'D', '-', '1', '2', '\n' };
 	char* c12 = new char[10]{ '#', 'C', 'O', 'N', 'T', '\n', '#', 'C', 'O', '\n' };
 
-	/*
 	Command* commands = nullptr;
-	int count = CommandInterpreter::parseCommands(commands, c1, 0);
+	int count = commandInterpreter->parseCommands(commands, c1, 0);
 	if (count != 0) {
 		cout << "Test 1 failed." << endl;
 	}
 	delete commands;
 
 	commands = nullptr;
-	count = CommandInterpreter::parseCommands(commands, c2, 0);
+	count = commandInterpreter->parseCommands(commands, c2, 0);
 	if (count != 0) {
 		cout << "Test 2 failed." << endl;
 	}
 	delete commands;
 
 	commands = nullptr;
-	count = CommandInterpreter::parseCommands(commands, c3, 1);
+	count = commandInterpreter->parseCommands(commands, c3, 1);
 	if (count != 0) {
 		cout << "Test 3 failed." << endl;
 	}
 	delete commands;
 
 	commands = nullptr;
-	count = CommandInterpreter::parseCommands(commands, c4, 1);
+	count = commandInterpreter->parseCommands(commands, c4, 1);
 	if (count != 0) {
 		cout << "Test 4 failed." << endl;
 	}
 	delete commands;
 
 	commands = nullptr;
-	count = CommandInterpreter::parseCommands(commands, c5, 6);
+	count = commandInterpreter->parseCommands(commands, c5, 6);
 	if (count != 1 || commands[0] != *contract0) {
 		cout << "Test 5 failed." << endl;
 	}
 	delete[] commands;
 
 	commands = nullptr;
-	count = CommandInterpreter::parseCommands(commands, c6, 12);
+	count = commandInterpreter->parseCommands(commands, c6, 12);
 	if (count != 2 || commands[0] != *contract0 || commands[1] != *contract0) {
 		cout << "Test 6 failed." << endl;
 	}
 	delete[] commands;
 
 	commands = nullptr;
-	count = CommandInterpreter::parseCommands(commands, c7, 10);
+	count = commandInterpreter->parseCommands(commands, c7, 10);
 	if (count != 1 || commands[0] != *contract0) {
 		cout << "Test 7 failed." << endl;
 	}
 	delete[] commands;
 
+	
 	commands = nullptr;
-	count = CommandInterpreter::parseCommands(commands, c8, 9);
+	count = commandInterpreter->parseCommands(commands, c8, 9);
 	if (count != 1 || commands[0] != *contract12) {
 		cout << "Test 8 failed." << endl;
 	}
 	delete[] commands;
 
 	commands = nullptr;
-	count = CommandInterpreter::parseCommands(commands, c9, 9);
+	count = commandInterpreter->parseCommands(commands, c9, 9);
 	if (count != 1 || commands[0].type() != CONTRACT_HAND || commands[0].bLength() != 3) {
 		cout << "Test 9 failed." << endl;
 	}
 	delete[] commands;
 
 	commands = nullptr;
-	count = CommandInterpreter::parseCommands(commands, c10, 4);
+	count = commandInterpreter->parseCommands(commands, c10, 4);
 	if (count != 1 || commands[0].type() != UNDEFINED || commands[0].bLength() != 2) {
 		cout << "Test 10 failed." << endl;
 	}
 	delete[] commands;
 
 	commands = nullptr;
-	count = CommandInterpreter::parseCommands(commands, c11, 9);
+	count = commandInterpreter->parseCommands(commands, c11, 9);
 	if (count != 1 || commands[0].type() != UNDEFINED || commands[0].bLength() != 7) {
 		cout << "Test 11 failed." << endl;
 	}
 	delete[] commands;
 
 	commands = nullptr;
-	count = CommandInterpreter::parseCommands(commands, c12, 10);
+	count = commandInterpreter->parseCommands(commands, c12, 10);
 	if (count != 2 || commands[0] != *contract0 || commands[1].type() != UNDEFINED || commands[1].bLength() != 2) {
 		Command someCommand = commands[1];
 		cout << "Test 12 failed." << endl;
 	}
 	delete[] commands;
-	*/
 
 	delete[] c2;
 	delete[] c3;
@@ -155,6 +155,7 @@ void testInterpreter() {
 	delete[] c12;
 	delete contract0;
 	delete contract12;
+	delete commandInterpreter;
 
 	cout << "All Interpreter tests passed." << endl;
 }

@@ -1,15 +1,11 @@
 #include "Command.h"
 #include <iostream>
 
-Command::Command(enum CommandType commandType, int numericData, char* blobData, int blobLength) {
+Command::Command(enum CommandType commandType, int numericData, const char* blobData, int blobLength) {
 	this->commandType = commandType;
 	this->numericData = numericData;
 	this->blobData = blobData;
 	this->blobLength = blobLength;
-
-	if (blobLength == 0 && blobData != nullptr) {
-		std::cout << "uhoh" << std::endl;
-	}
 }
 
 Command::Command(const Command& other) {
@@ -42,7 +38,7 @@ int Command::bLength() const {
 
 // Removes all command data and sets to UNDEFINED
 void Command::clear() {
-	if (this->blobLength > 0) {
+	if (this->blobLength > 0 && this->blobData != nullptr) {
 		delete[] this->blobData;
 	}
 	
@@ -60,11 +56,16 @@ void Command::operator=(const Command& other) {
 	this->numericData = other.nData();
 	this->blobLength = other.bLength();
 
-	// Copy blob data
-	this->blobData = new char[this->blobLength];
-	const char* otherBlobData = other.bData();
-	for (int i = 0; i < this->blobLength; ++i) {
-		this->blobData[i] = otherBlobData[i];
+	if (this->blobLength != 0 && other.bData() != nullptr) {
+		// Copy blob data
+		char* newBlobData = new char[this->blobLength];
+		const char* otherBlobData = other.bData();
+		for (int i = 0; i < this->blobLength; ++i) {
+			newBlobData[i] = otherBlobData[i];
+		}
+
+		this->blobData = newBlobData;
+		newBlobData = nullptr;
 	}
 }
 
