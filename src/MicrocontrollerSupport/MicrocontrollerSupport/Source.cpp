@@ -1,6 +1,12 @@
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
+#include "FixedSizeBuffer.h"
+#include "ElasticBuffer.h"
+#include "Timer.h"
+#include "Command.h"
+#include <iostream>
+#include "CommandInterpreter.h"
 
 #ifdef _DEBUG
 #define new new( _NORMAL_BLOCK , __FILE__ , __LINE__ )
@@ -8,15 +14,7 @@
 #define new new
 #endif
 
-#include "FixedSizeBuffer.h"
-#include "ElasticBuffer.h"
-#include "Command.h"
-#include <iostream>
-#include "CommandInterpreter.h"
-
 using namespace std;
-
-const int BUFFER_SIZE = 3;
 
 //template <class T>
 //void printFixedSizeBuffer(FixedSizeBuffer<T>& FixedSizeBuffer) {
@@ -239,6 +237,29 @@ void testFBuffer() {
 	delete q;
 }
 
+void testTimer() {
+	const unsigned long startTime = 100000;
+	const int duration = 4000;
+	Timer* timer = new Timer(startTime, duration);
+
+	const unsigned long currentTime1 = 102000;
+	if (timer->isElapsed(currentTime1)) {
+		cout << "isElapsed failed before." << endl;
+	}
+
+	const unsigned long currentTime2 = 104000;
+	if (timer->isElapsed(currentTime2)) {
+		cout << "isElapsed failed during." << endl;
+	}
+
+	const unsigned long currentTime3 = 104001;
+	if (!timer->isElapsed(currentTime3)) {
+		cout << "isElapsed failed after." << endl;
+	}
+
+	delete timer;
+}
+
 int main(int argc, char* argv[]) {
 	cout << "Testing Elastic Buffer" << endl;
 	testEBuffer();
@@ -249,6 +270,8 @@ int main(int argc, char* argv[]) {
 	testFBuffer();
 	cout << "All Tests Done" << endl;
 	cout << endl;
+
+	testTimer();
 
 	_CrtDumpMemoryLeaks();
 
