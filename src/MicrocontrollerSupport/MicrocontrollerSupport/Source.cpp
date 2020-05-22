@@ -39,9 +39,6 @@ const int QUEUE_SIZE = 3;
 //}
 
 void testInterpreter() {
-	CommandInterpreter* interpreter = new CommandInterpreter();
-
-	const Command* undefined = new Command();
 	const Command* contract0 = new Command(CONTRACT_HAND, 0);
 	const Command* contract12 = new Command(CONTRACT_HAND, -12);
 
@@ -55,117 +52,96 @@ void testInterpreter() {
 	char* c8 = new char[9]{ '#', 'C', 'O', 'N', 'T', '-', '1', '2', '\n' };
 	char* c9 = new char[9]{ '#', 'C', 'O', 'N', 'T', '-', '1', 'a', '\n' };
 	char* c10 = new char[4]{ '#', 'C', 'O', '\n' };
-	char* c11 = new char[10]{ '#', 'C', 'O', 'N', 'T', '\n', '#', 'C', 'O', '\n' };
+	char* c11 = new char[9]{ '#', 'C', 'O', 'D', 'D', '-', '1', '2', '\n' };
+	char* c12 = new char[10]{ '#', 'C', 'O', 'N', 'T', '\n', '#', 'C', 'O', '\n' };
 
-	const int co1 = interpreter->countCommands(c1, 0);
-	if (co1 != 0) {
-		cout << "Failed at co1" << endl;
-		return;
+	Command* commands = nullptr;
+	int count = CommandInterpreter::parseCommands(commands, c1, 0);
+	if (count != 0) {
+		cout << "Test 1 failed." << endl;
 	}
-	const Command* cm1 = interpreter->parseCommands(c1, 0, co1);
+	delete commands;
 
-	const int co2 = interpreter->countCommands(c2, 0);
-	if (co2 != 0) {
-		cout << "Failed at co2" << endl;
-		return;
+	commands = nullptr;
+	count = CommandInterpreter::parseCommands(commands, c2, 0);
+	if (count != 0) {
+		cout << "Test 2 failed." << endl;
 	}
-	const Command* cm2 = interpreter->parseCommands(c2, 0, co2);
+	delete commands;
 
-	const int co3 = interpreter->countCommands(c3, 1);
-	if (co3 != 0) {
-		cout << "Failed at co3" << endl;
-		return;
+	commands = nullptr;
+	count = CommandInterpreter::parseCommands(commands, c3, 1);
+	if (count != 0) {
+		cout << "Test 3 failed." << endl;
 	}
-	const Command* cm3 = interpreter->parseCommands(c3, 1, co3);
+	delete commands;
 
-	const int co4 = interpreter->countCommands(c4, 1);
-	if (co4 != 0) {
-		cout << "Failed at co4" << endl;
-		return;
+	commands = nullptr;
+	count = CommandInterpreter::parseCommands(commands, c4, 1);
+	if (count != 0) {
+		cout << "Test 4 failed." << endl;
 	}
-	const Command* cm4 = interpreter->parseCommands(c4, 1, co4);
+	delete commands;
 
-	const int co5 = interpreter->countCommands(c5, 6);
-	if (co5 != 1) {
-		cout << "Failed at co5" << endl;
-		return;
+	commands = nullptr;
+	count = CommandInterpreter::parseCommands(commands, c5, 6);
+	if (count != 1 || commands[0] != *contract0) {
+		cout << "Test 5 failed." << endl;
 	}
-	const Command* cm5 = interpreter->parseCommands(c5, 6, co5);
-	if (cm5[0] != *contract0) {
-		cout << "Failed at cm5" << endl;
-		return;
-	}
+	delete[] commands;
 
-	const int co6 = interpreter->countCommands(c6, 12);
-	if (co6 != 2) {
-		cout << "Failed at co6" << endl;
-		return;
+	commands = nullptr;
+	count = CommandInterpreter::parseCommands(commands, c6, 12);
+	if (count != 2 || commands[0] != *contract0 || commands[1] != *contract0) {
+		cout << "Test 6 failed." << endl;
 	}
-	const Command* cm6 = interpreter->parseCommands(c6, 12, co6);
-	if (cm6[0] != *contract0 && cm6[1] != *contract0) {
-		cout << "Failed at cm6" << endl;
-		return;
-	}
+	delete[] commands;
 
-	const int co7 = interpreter->countCommands(c7, 10);
-	if (co7 != 1) {
-		cout << "Failed at co7" << endl;
-		return;
+	commands = nullptr;
+	count = CommandInterpreter::parseCommands(commands, c7, 10);
+	if (count != 1 || commands[0] != *contract0) {
+		cout << "Test 7 failed." << endl;
 	}
-	const Command* cm7 = interpreter->parseCommands(c7, 10, co7);
-	if (cm7[0] != *contract0 && cm7[1] != *undefined) {
-		cout << "Failed at cm7" << endl;
-		return;
-	}
+	delete[] commands;
 
-	const int co8 = interpreter->countCommands(c8, 9);
-	if (co8 != 1) {
-		cout << "Failed at co8" << endl;
-		return;
+	commands = nullptr;
+	count = CommandInterpreter::parseCommands(commands, c8, 9);
+	if (count != 1 || commands[0] != *contract12) {
+		cout << "Test 8 failed." << endl;
 	}
-	const Command* cm8 = interpreter->parseCommands(c8, 9, co8);
-	if (cm8[0] != *contract12) {
-		cout << "Failed at cm8" << endl;
-		return;
-	}
+	delete[] commands;
 
-	const int co9 = interpreter->countCommands(c9, 9);
-	if (co9 != 1) {
-		cout << "Failed at co9" << endl;
-		return;
+	commands = nullptr;
+	count = CommandInterpreter::parseCommands(commands, c9, 9);
+	if (count != 1 || commands[0].type() != CONTRACT_HAND || commands[0].bLength() != 3) {
+		cout << "Test 9 failed." << endl;
 	}
-	const Command* cm9 = interpreter->parseCommands(c9, 9, co9);
-	if (cm9[0] != *contract0) {
-		cout << "Failed at cm9" << endl;
-		return;
-	}
+	delete[] commands;
 
-	const int co10 = interpreter->countCommands(c10, 4);
-	if (co10 != 1) {
-		cout << "Failed at co10" << endl;
-		return;
+	commands = nullptr;
+	count = CommandInterpreter::parseCommands(commands, c10, 4);
+	if (count != 1 || commands[0].type() != UNDEFINED || commands[0].bLength() != 2) {
+		cout << "Test 10 failed." << endl;
 	}
-	const Command* cm10 = interpreter->parseCommands(c10, 14, co10);
-	if (cm10[0] != *undefined) {
-		cout << "Failed at cm10" << endl;
-		return;
-	}
+	delete[] commands;
 
-	const int co11 = interpreter->countCommands(c11, 10);
-	if (co11 != 2) {
-		cout << "Failed at co11" << endl;
-		return;
+	commands = nullptr;
+	count = CommandInterpreter::parseCommands(commands, c11, 9);
+	if (count != 1 || commands[0].type() != UNDEFINED || commands[0].bLength() != 7) {
+		cout << "Test 11 failed." << endl;
 	}
-	const Command* cm11 = interpreter->parseCommands(c11, 11, co11);
-	if (cm11[0] != *contract0 && cm11[1] != *undefined) {
-		cout << "Failed at cm11" << endl;
-		return;
-	}
+	delete[] commands;
 
-	delete c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11;
-	delete[] cm1, cm2, cm3, cm4, cm5, cm6, cm7, cm8, cm9, cm10, cm11;
-	delete interpreter;
-	delete undefined, contract0, contract12;
+	commands = nullptr;
+	count = CommandInterpreter::parseCommands(commands, c12, 10);
+	if (count != 2 || commands[0] != *contract0 || commands[1].type() != UNDEFINED || commands[1].bLength() != 2) {
+		Command someCommand = commands[1];
+		cout << "Test 12 failed." << endl;
+	}
+	delete[] commands;
+
+	delete c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12;
+	delete contract0, contract12;
 
 	cout << "All Interpreter tests passed." << endl;
 }

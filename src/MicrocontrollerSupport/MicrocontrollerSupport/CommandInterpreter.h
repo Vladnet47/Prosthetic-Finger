@@ -27,7 +27,7 @@ class CommandInterpreter {
 		static const int COMMAND_START = '#';
 		static const int COMMAND_END = '\n';
 
-		// Used to categorize commands sent to the microcontroller by the user
+		// Used to categorize commands sent to the microcontroller by the user. Defined in cpp
 		static CommandTypeMap* conversions;
 
 		CommandInterpreter();
@@ -37,6 +37,6 @@ class CommandInterpreter {
 		static bool tryParseInt(int& result, const char chars[], const int length);
 		static int pow(const int base, const int exponent);
 		static char* arraySubset(const char chars[], const int length, const int start, const int end);
-		static int parseCommands(Command**& commands, const char chars[], const int length);
+		static int parseCommands(Command*& commands, const char chars[], const int length);
 	private:		
 };

@@ -1,15 +1,18 @@
 #include "CommandInterpreter.h"
 
-CommandTypeMap* CommandInterpreter::conversions = new CommandTypeMap[]{
-	CommandTypeMap(new char[] {'C', 'O', 'N', 'T'}, CONTRACT_HAND),
-	CommandTypeMap(new char[] {'E', 'X', 'T', 'D'}, EXTEND_HAND),
-	CommandTypeMap(new char[] {'S', 'T', 'O', 'P'}, STOP),
-	CommandTypeMap(new char[] {'P', 'R', 'N', 'T'}, LIST_BUFFER)
+// Conversions used to determine type of command from character array
+CommandTypeMap* CommandInterpreter::conversions = new CommandTypeMap[NUMBER_OF_COMMANDS]{
+	CommandTypeMap(new char[CommandInterpreter::COMMAND_LENGTH] {'C', 'O', 'N', 'T'}, CONTRACT_HAND),
+	CommandTypeMap(new char[CommandInterpreter::COMMAND_LENGTH] {'E', 'X', 'T', 'D'}, EXTEND_HAND),
+	CommandTypeMap(new char[CommandInterpreter::COMMAND_LENGTH] {'S', 'T', 'O', 'P'}, STOP),
+	CommandTypeMap(new char[CommandInterpreter::COMMAND_LENGTH] {'P', 'R', 'N', 'T'}, LIST_BUFFER)
 };
 
 CommandInterpreter::CommandInterpreter() {}
 CommandInterpreter::~CommandInterpreter() {}
 
+// Returns true if successfully parsed command type from provided array of characters and sets 'type' parameter
+// to command type enum value. Returns false if failed to parse command from chars.
 bool CommandInterpreter::tryParseType(enum CommandType& type, const char chars[], const int length) {
 	if (chars == nullptr || length != CommandInterpreter::COMMAND_LENGTH) {
 		return false;
@@ -99,7 +102,11 @@ char* CommandInterpreter::arraySubset(const char chars[], const int length, cons
 	return result;
 }
 
-int CommandInterpreter::parseCommands(Command**& commands, const char chars[], const int length) {
+// Parses command(s) from provided cstring buffer. Sets 'commands' parameter to array of command objects, and returns
+// size of said array. 
+// - If a command cannot be identified, it's type is set as UNDEFINED and the respective chars are stored in its blob data.
+// - If the command data is a valid integer, it is stored as numeric data. Otherwise, the command data is stored in blob data.
+int CommandInterpreter::parseCommands(Command*& commands, const char chars[], const int length) {
 	if (chars == nullptr || length <= 0) {
 		return 0;
 	}
@@ -117,12 +124,17 @@ int CommandInterpreter::parseCommands(Command**& commands, const char chars[], c
 		++end;
 	}
 
+	if (count == 0) {
+		return 0;
+	}
+
 	// Create array for all commands (which are set to undefined if invalid)
-	*commands = new Command[count];
+	commands = new Command[count];
 
 	// Go through characters and convert to command objects
-	int index = 0, start = 0, end = 0;
-	while (index < count) {
+	int index = 0;
+	start = 0, end = 0;
+	while (index < count && end < length) {
 		// If start symbol doesn't indicate the start of a command, increment both start and end
 		if (chars[start] != CommandInterpreter::COMMAND_START) {
 			++start;
@@ -132,42 +144,51 @@ int CommandInterpreter::parseCommands(Command**& commands, const char chars[], c
 			const int commandLength = end - start - 1;
 
 			// Ensure valid number of symbols for a command
-			if (commandLength >= CommandInterpreter::COMMAND_LENGTH) {
-				const int dataLength = commandLength - CommandInterpreter::COMMAND_LENGTH;
-
-				// Copy symbols that represent the command type
-				char* typeChars = arraySubset(chars, length, start + 1, start + 1 + COMMAND_LENGTH);
-
-				// Parse command type
-				enum CommandType type;
-				bool successfullyParsed = CommandInterpreter::tryParseType(type, typeChars, COMMAND_LENGTH);
-				delete[] typeChars;
-
-				// If failed to parse, create undefined command and put buffer contents into its blob data
-				if (!successfullyParsed) {
-					*commands[index] = Command(UNDEFINED, 0, arraySubset(chars, length, start + 1, end));
-					++index;
-					continue;
-				}
-
-				// Copy the symbols that represent the command data
-				char* dataChars = arraySubset(chars, length, start + 1 + COMMAND_LENGTH, end);
-
-				// Parse int from data
-				int nData;
-				successfullyParsed = CommandInterpreter::tryParseInt(nData, dataChars, dataLength);
-
-				// If successfully parsed, store as int. If unable to parse, store symbols as blob data instead.
-				if (successfullyParsed) {
-					delete[] dataChars;
-					*commands[index] = Command(type, nData);
-				}
-				else {
-					*commands[index] = Command(type, 0, dataChars);
-				}
-
+			if (commandLength < CommandInterpreter::COMMAND_LENGTH) {
+				commands[index] = Command(UNDEFINED, 0, arraySubset(chars, length, start + 1, end), commandLength);
 				++index;
+				start = end;
+				++end;
+				continue;
 			}
+
+			const int dataLength = commandLength - CommandInterpreter::COMMAND_LENGTH;
+
+			// Copy symbols that represent the command type
+			char* typeChars = arraySubset(chars, length, start + 1, start + 1 + COMMAND_LENGTH);
+
+			// Parse command type
+			enum CommandType type;
+			bool successfullyParsed = CommandInterpreter::tryParseType(type, typeChars, COMMAND_LENGTH);
+			delete[] typeChars;
+
+			// If failed to parse, create undefined command and put buffer contents into its blob data
+			if (!successfullyParsed) {
+				commands[index] = Command(UNDEFINED, 0, arraySubset(chars, length, start + 1, end), commandLength);
+				++index;
+				start = end;
+				++end;
+				continue;
+			}
+
+			// Copy the symbols that represent the command data
+			char* dataChars = arraySubset(chars, length, start + 1 + COMMAND_LENGTH, end);
+
+			// Parse int from data
+			int nData;
+			successfullyParsed = CommandInterpreter::tryParseInt(nData, dataChars, dataLength);
+
+			// If successfully parsed, store as int. If unable to parse, store symbols as blob data instead.
+			if (successfullyParsed) {
+				delete[] dataChars;
+				commands[index] = Command(type, nData);
+			}
+			else {
+				commands[index] = Command(type, 0, dataChars, dataLength);
+			}
+
+			++index;
+			start = end;
 		}
 
 		++end;
