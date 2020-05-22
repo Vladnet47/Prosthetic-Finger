@@ -8,21 +8,21 @@
 #define new new
 #endif
 
-#include "Queue.h"
+#include "FixedSizeBuffer.h"
 #include "Command.h"
 #include <iostream>
 #include "CommandInterpreter.h"
 
 using namespace std;
 
-const int QUEUE_SIZE = 3;
+const int BUFFER_SIZE = 3;
 
 //template <class T>
-//void printQueue(Queue<T>& queue) {
-//	const int size = queue.size();
+//void printFixedSizeBuffer(FixedSizeBuffer<T>& FixedSizeBuffer) {
+//	const int size = FixedSizeBuffer.size();
 //
 //	if (size > 0) {
-//		T* list = queue.list();
+//		T* list = FixedSizeBuffer.list();
 //		for (int i = 0; i < size; ++i) {
 //			cout << "[" << list[i] << "]";
 //		}
@@ -30,7 +30,7 @@ const int QUEUE_SIZE = 3;
 //		delete[] list;
 //	}
 //
-//	const int emptySlots = QUEUE_SIZE - size;
+//	const int emptySlots = FixedSizeBuffer_SIZE - size;
 //	for (int i = 0; i < emptySlots; ++i) {
 //		cout << "[]";
 //	}
@@ -160,49 +160,44 @@ void testInterpreter() {
 	cout << "All Interpreter tests passed." << endl;
 }
 
-void testIntQueue() {
-	Queue<int> *q = new Queue<int>(QUEUE_SIZE);
-	auto& queue = *q;
+void testIntFixedSizeBuffer() {
+	FixedSizeBuffer<int> *q = new FixedSizeBuffer<int>(BUFFER_SIZE);
+	auto& FixedSizeBuffer = *q;
 
 	int i = 6;
 	int j = 1;
 	int k = 5;
 
-	//printQueue(queue);
+	//printFixedSizeBuffer(FixedSizeBuffer);
 
-	queue.push(i);
-	//printQueue(queue);
+	FixedSizeBuffer.push(i);
+	//printFixedSizeBuffer(FixedSizeBuffer);
 
-	queue.push(j);
-	queue.push(k);
-	//printQueue(queue);
+	FixedSizeBuffer.push(j);
+	FixedSizeBuffer.push(k);
+	//printFixedSizeBuffer(FixedSizeBuffer);
 
-	queue.push(i);
-	//printQueue(queue);
+	FixedSizeBuffer.push(i);
+	//printFixedSizeBuffer(FixedSizeBuffer);
 
-	const int* c = queue.popFront();
+	const int* c = FixedSizeBuffer.pop();
 	if (*c != j) {
-		cout << "Pop front failed." << endl;
+		cout << "Pop failed." << endl;
 	}
-	//printQueue(queue);
+	delete c;
+	//printFixedSizeBuffer(FixedSizeBuffer);
 
-	const int* d = queue.popBack();
-	if (*d != i) {
-		cout << "Pop back failed." << endl;
-	}
-	//printQueue(queue);
-
-	const int* e = queue.get(0);
+	const int* e = FixedSizeBuffer.get(0);
 	if (*e != k) {
 		cout << "Get failed." << endl;
 	}
-	//printQueue(queue);
+	//printFixedSizeBuffer(FixedSizeBuffer);
 
 	delete q;
 }
 
 int main(int argc, char* argv[]) {
-	testInterpreter();
+	testIntFixedSizeBuffer();
 
 	_CrtDumpMemoryLeaks();
 
