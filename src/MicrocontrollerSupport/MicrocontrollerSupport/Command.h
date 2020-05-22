@@ -1,5 +1,7 @@
 #pragma once
 
+const int NUMBER_OF_COMMANDS = 4;
+
 // Types of defined commands
 enum CommandType {
 	UNDEFINED,
@@ -13,14 +15,15 @@ enum CommandType {
 
 class Command {
 public:
-	Command(enum CommandType commandType = UNDEFINED, int numericData = 0, char* blobData = nullptr, int chars = 0);
+	Command(enum CommandType commandType = UNDEFINED, int numericData = 0, char* blobData = nullptr, int blobLength = 0);
 	Command(const Command& other);
 	~Command();
 
 	enum CommandType type() const;
 	int nData() const;
-	char* bData() const;
+	const char* bData() const;
 	int bLength() const;
+
 	void operator=(const Command& other);
 	bool operator==(const Command& other) const;
 	bool operator!=(const Command& other) const;
@@ -31,5 +34,5 @@ private:
 	char* blobData;
 	int blobLength;
 
-	inline void clear();
+	void clear();
 };
