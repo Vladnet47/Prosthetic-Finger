@@ -6,7 +6,7 @@
 #include "Timer.h"
 #include "Command.h"
 #include <iostream>
-#include "CommandInterpreter.h"
+#include "CommandDecoder.h"
 
 #ifdef _DEBUG
 #define new new( _NORMAL_BLOCK , __FILE__ , __LINE__ )
@@ -16,29 +16,8 @@
 
 using namespace std;
 
-//template <class T>
-//void printFixedSizeBuffer(FixedSizeBuffer<T>& FixedSizeBuffer) {
-//	const int size = FixedSizeBuffer.size();
-//
-//	if (size > 0) {
-//		T* list = FixedSizeBuffer.list();
-//		for (int i = 0; i < size; ++i) {
-//			cout << "[" << list[i] << "]";
-//		}
-//
-//		delete[] list;
-//	}
-//
-//	const int emptySlots = FixedSizeBuffer_SIZE - size;
-//	for (int i = 0; i < emptySlots; ++i) {
-//		cout << "[]";
-//	}
-//
-//	cout << endl;
-//}
-
-void testInterpreter() {
-	const CommandInterpreter* commandInterpreter = new CommandInterpreter();
+void testCommandDecoder() {
+	CommandDecoder* commandDecoder = new CommandDecoder();
 	const Command* contract0 = new Command(CONTRACT_HAND, 0);
 	const Command* contract12 = new Command(CONTRACT_HAND, -12);
 
@@ -55,91 +34,155 @@ void testInterpreter() {
 	char* c11 = new char[9]{ '#', 'C', 'O', 'D', 'D', '-', '1', '2', '\n' };
 	char* c12 = new char[10]{ '#', 'C', 'O', 'N', 'T', '\n', '#', 'C', 'O', '\n' };
 
-	Command* commands = nullptr;
-	int count = commandInterpreter->parseCommands(commands, c1, 0);
-	if (count != 0) {
-		cout << "Test 1 failed." << endl;
+	commandDecoder->addChars(c1, 0);
+	if (commandDecoder->hasNext() || commandDecoder->next() != nullptr) {
+		cout << "Test 1 failed" << endl;
 	}
-	delete commands;
 
-	commands = nullptr;
-	count = commandInterpreter->parseCommands(commands, c2, 0);
-	if (count != 0) {
-		cout << "Test 2 failed." << endl;
+	commandDecoder->addChars(c2, 0);
+	if (commandDecoder->hasNext() || commandDecoder->next() != nullptr) {
+		cout << "Test 2 failed" << endl;
 	}
-	delete commands;
 
-	commands = nullptr;
-	count = commandInterpreter->parseCommands(commands, c3, 1);
-	if (count != 0) {
-		cout << "Test 3 failed." << endl;
+	commandDecoder->addChars(c3, 1);
+	if (commandDecoder->hasNext() || commandDecoder->next() != nullptr) {
+		cout << "Test 3 failed" << endl;
 	}
-	delete commands;
 
-	commands = nullptr;
-	count = commandInterpreter->parseCommands(commands, c4, 1);
-	if (count != 0) {
-		cout << "Test 4 failed." << endl;
+	commandDecoder->addChars(c4, 1);
+	if (commandDecoder->hasNext() || commandDecoder->next() != nullptr) {
+		cout << "Test 4 failed" << endl;
 	}
-	delete commands;
 
-	commands = nullptr;
-	count = commandInterpreter->parseCommands(commands, c5, 6);
-	if (count != 1 || commands[0] != *contract0) {
-		cout << "Test 5 failed." << endl;
-	}
-	delete[] commands;
+	commandDecoder->clear();
 
-	commands = nullptr;
-	count = commandInterpreter->parseCommands(commands, c6, 12);
-	if (count != 2 || commands[0] != *contract0 || commands[1] != *contract0) {
-		cout << "Test 6 failed." << endl;
+	commandDecoder->addChars(c5, 6);
+	if (commandDecoder->hasNext()) {
+		const Command* command = commandDecoder->next();
+		if (*command != *contract0) {
+			cout << "Test 5 failed" << endl;
+		}
+		delete command;
 	}
-	delete[] commands;
+	else {
+		cout << "Test 5 failed" << endl;
+	}
+	commandDecoder->clear();
 
-	commands = nullptr;
-	count = commandInterpreter->parseCommands(commands, c7, 10);
-	if (count != 1 || commands[0] != *contract0) {
-		cout << "Test 7 failed." << endl;
-	}
-	delete[] commands;
+	commandDecoder->addChars(c6, 12);
+	if (commandDecoder->hasNext()) {
+		const Command* command = commandDecoder->next();
+		if (*command != *contract0) {
+			cout << "Test 6 failed" << endl;
+		}
+		delete command;
 
-	
-	commands = nullptr;
-	count = commandInterpreter->parseCommands(commands, c8, 9);
-	if (count != 1 || commands[0] != *contract12) {
-		cout << "Test 8 failed." << endl;
+		if (commandDecoder->hasNext()) {
+			command = commandDecoder->next();
+			if (*command != *contract0) {
+				cout << "Test 6 failed" << endl;
+			}
+			delete command;
+		}
+		else {
+			cout << "Test 6 failed" << endl;
+		}
 	}
-	delete[] commands;
+	else {
+		cout << "Test 6 failed" << endl;
+	}
+	commandDecoder->clear();
 
-	commands = nullptr;
-	count = commandInterpreter->parseCommands(commands, c9, 9);
-	if (count != 1 || commands[0].type() != CONTRACT_HAND || commands[0].bLength() != 3) {
-		cout << "Test 9 failed." << endl;
-	}
-	delete[] commands;
+	commandDecoder->addChars(c7, 10);
+	if (commandDecoder->hasNext()) {
+		const Command* command = commandDecoder->next();
+		if (*command != *contract0) {
+			cout << "Test 7 failed" << endl;
+		}
+		delete command;
 
-	commands = nullptr;
-	count = commandInterpreter->parseCommands(commands, c10, 4);
-	if (count != 1 || commands[0].type() != UNDEFINED || commands[0].bLength() != 2) {
-		cout << "Test 10 failed." << endl;
+		if (commandDecoder->hasNext()) {
+			cout << "Test 7 failed" << endl;
+		}
 	}
-	delete[] commands;
+	else {
+		cout << "Test 7 failed" << endl;
+	}
+	commandDecoder->clear();
 
-	commands = nullptr;
-	count = commandInterpreter->parseCommands(commands, c11, 9);
-	if (count != 1 || commands[0].type() != UNDEFINED || commands[0].bLength() != 7) {
-		cout << "Test 11 failed." << endl;
+	commandDecoder->addChars(c8, 9);
+	if (commandDecoder->hasNext()) {
+		const Command* command = commandDecoder->next();
+		if (*command != *contract12) {
+			cout << "Test 8 failed" << endl;
+		}
+		delete command;
 	}
-	delete[] commands;
+	else {
+		cout << "Test 8 failed" << endl;
+	}
+	commandDecoder->clear();
 
-	commands = nullptr;
-	count = commandInterpreter->parseCommands(commands, c12, 10);
-	if (count != 2 || commands[0] != *contract0 || commands[1].type() != UNDEFINED || commands[1].bLength() != 2) {
-		Command someCommand = commands[1];
-		cout << "Test 12 failed." << endl;
+	commandDecoder->addChars(c9, 9);
+	if (commandDecoder->hasNext()) {
+		const Command* command = commandDecoder->next();
+		if (command->type() == CONTRACT_HAND && command->bLength() != 3) {
+			cout << "Test 9 failed" << endl;
+		}
+		delete command;
 	}
-	delete[] commands;
+	else {
+		cout << "Test 9 failed" << endl;
+	}
+	commandDecoder->clear();
+
+	commandDecoder->addChars(c10, 4);
+	if (commandDecoder->hasNext()) {
+		const Command* command = commandDecoder->next();
+		if (command->type() != UNDEFINED && command->bLength() != 2) {
+			cout << "Test 10 failed" << endl;
+		}
+		delete command;
+	}
+	else {
+		cout << "Test 10 failed" << endl;
+	}
+	commandDecoder->clear();
+
+	commandDecoder->addChars(c11, 9);
+	if (commandDecoder->hasNext()) {
+		const Command* command = commandDecoder->next();
+		if (command->type() != UNDEFINED && command->bLength() != 7) {
+			cout << "Test 11 failed" << endl;
+		}
+		delete command;
+	}
+	else {
+		cout << "Test 11 failed" << endl;
+	}
+
+	commandDecoder->addChars(c12, 10);
+	if (commandDecoder->hasNext()) {
+		const Command* command = commandDecoder->next();
+		if (*command != *contract0) {
+			cout << "Test 12 failed" << endl;
+		}
+		delete command;
+	}
+	else {
+		cout << "Test 12 failed" << endl;
+	}
+	if (commandDecoder->hasNext()) {
+		const Command* command = commandDecoder->next();
+		if (command->type() != UNDEFINED && command->bLength() != 2) {
+			cout << "Test 12 failed" << endl;
+		}
+		delete command;
+	}
+	else {
+		cout << "Test 12 failed" << endl;
+	}
+	commandDecoder->clear();
 
 	delete[] c2;
 	delete[] c3;
@@ -154,9 +197,7 @@ void testInterpreter() {
 	delete[] c12;
 	delete contract0;
 	delete contract12;
-	delete commandInterpreter;
-
-	cout << "All Interpreter tests passed." << endl;
+	delete commandDecoder;
 }
 
 void testEBuffer() {
@@ -167,24 +208,16 @@ void testEBuffer() {
 	int j = 1;
 	int k = 5;
 
-	//printFixedSizeBuffer(FixedSizeBuffer);
-
 	ElasticBuffer.push(i);
-	//printFixedSizeBuffer(FixedSizeBuffer);
-
 	ElasticBuffer.push(j);
 	ElasticBuffer.push(k);
-	//printFixedSizeBuffer(FixedSizeBuffer);
-
 	ElasticBuffer.push(i);
-	//printFixedSizeBuffer(FixedSizeBuffer);
 
 	const int* c = ElasticBuffer.pop();
 	if (*c != i) {
 		cout << "Pop failed." << endl;
 	}
 	delete c;
-	//printFixedSizeBuffer(FixedSizeBuffer);
 
 	const int* d = ElasticBuffer.remove(2);
 	if (*d != i) {
@@ -196,7 +229,6 @@ void testEBuffer() {
 	if (*e != k) {
 		cout << "Get failed." << endl;
 	}
-	//printFixedSizeBuffer(FixedSizeBuffer);
 
 	delete q;
 }
@@ -209,30 +241,21 @@ void testFBuffer() {
 	int j = 1;
 	int k = 5;
 
-	//printFixedSizeBuffer(FixedSizeBuffer);
-
 	FixedSizeBuffer.push(i);
-	//printFixedSizeBuffer(FixedSizeBuffer);
-
 	FixedSizeBuffer.push(j);
 	FixedSizeBuffer.push(k);
-	//printFixedSizeBuffer(FixedSizeBuffer);
-
 	FixedSizeBuffer.push(i);
-	//printFixedSizeBuffer(FixedSizeBuffer);
 
 	const int* c = FixedSizeBuffer.pop();
 	if (*c != j) {
 		cout << "Pop failed." << endl;
 	}
 	delete c;
-	//printFixedSizeBuffer(FixedSizeBuffer);
 
 	const int* e = FixedSizeBuffer.get(1);
 	if (*e != i) {
 		cout << "Get failed." << endl;
 	}
-	//printFixedSizeBuffer(FixedSizeBuffer);
 
 	delete q;
 }
@@ -263,15 +286,19 @@ void testTimer() {
 int main(int argc, char* argv[]) {
 	cout << "Testing Elastic Buffer" << endl;
 	testEBuffer();
-	cout << "All Tests Done" << endl;
-	cout << endl;
+	cout << "All Tests Done" << endl << endl;
 
 	cout << "Testing Fixed Size Buffer" << endl;
 	testFBuffer();
-	cout << "All Tests Done" << endl;
-	cout << endl;
+	cout << "All Tests Done" << endl << endl;
 
+	cout << "Testing Timer" << endl;
 	testTimer();
+	cout << "All Tests Done" << endl << endl;
+
+	cout << "Testing Command Decoder" << endl;
+	testCommandDecoder();
+	cout << "All Tests Done" << endl << endl;
 
 	_CrtDumpMemoryLeaks();
 
