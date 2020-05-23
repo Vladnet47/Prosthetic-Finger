@@ -1,7 +1,6 @@
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
-#include "FixedSizeBuffer.h"
 #include "ElasticBuffer.h"
 #include "Timer.h"
 #include "Command.h"
@@ -239,33 +238,6 @@ void testEBuffer() {
 	delete q;
 }
 
-void testFBuffer() {
-	FixedSizeBuffer<int> *q = new FixedSizeBuffer<int>(3);
-	auto& FixedSizeBuffer = *q;
-
-	int i = 6;
-	int j = 1;
-	int k = 5;
-
-	FixedSizeBuffer.push(i);
-	FixedSizeBuffer.push(j);
-	FixedSizeBuffer.push(k);
-	FixedSizeBuffer.push(i);
-
-	const int* c = FixedSizeBuffer.pop();
-	if (*c != j) {
-		cout << "Pop failed." << endl;
-	}
-	delete c;
-
-	const int* e = FixedSizeBuffer.get(1);
-	if (*e != i) {
-		cout << "Get failed." << endl;
-	}
-
-	delete q;
-}
-
 void testTimer() {
 	const unsigned long startTime = 100000;
 	const int duration = 4000;
@@ -292,10 +264,6 @@ void testTimer() {
 int main(int argc, char* argv[]) {
 	cout << "Testing Elastic Buffer" << endl;
 	testEBuffer();
-	cout << "All Tests Done" << endl << endl;
-
-	cout << "Testing Fixed Size Buffer" << endl;
-	testFBuffer();
 	cout << "All Tests Done" << endl << endl;
 
 	cout << "Testing Timer" << endl;
