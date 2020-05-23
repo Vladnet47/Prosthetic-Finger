@@ -130,7 +130,7 @@ const bool CommandDecoder::tryParseInt(int& result) const {
 		}
 		// If numeric, convert to integer
 		else if (*c == '0' || *c == '1' || *c == '2' || *c == '3' || *c == '4' || *c == '5' || *c == '6' || *c == '7' || *c == '8' || *c == '9') {
-			result += (*c - '0') * this->pow(10, size - i - 1);
+			result += (*c - '0') * Util::Math::pow(10, size - i - 1);
 		}
 		// Character not numeric, or '-' character in wrong place
 		else {
@@ -154,17 +154,4 @@ const char* CommandDecoder::dumpCharBuffer() {
 	}
 
 	return blob;
-}
-
-// Returns base raised to the power of exponent
-const int CommandDecoder::pow(const int base, const int exponent) const {
-	if (exponent <= 0) {
-		return 1;
-	}
-
-	int result = base;
-	for (int i = 1; i < exponent; ++i) {
-		result *= result;
-	}
-	return result;
 }

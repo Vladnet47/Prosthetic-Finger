@@ -2,6 +2,7 @@
 #include "Command.h"
 #include "CommandConversions.h"
 #include "ElasticBuffer.h"
+#include "Util.h"
 
 // Decodes commands from stream of characters sent to the microcontroller. Buffers incoming characters
 // to prevent data loss from signal delays.
@@ -23,5 +24,4 @@ private:
 	const bool tryParseType(enum CommandType& type) const;
 	const bool tryParseInt(int& result)const;
 	const char* dumpCharBuffer();
-	const int pow(const int base, const int exponent) const;
 };
