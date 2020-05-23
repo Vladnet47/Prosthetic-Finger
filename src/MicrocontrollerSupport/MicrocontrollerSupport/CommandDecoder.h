@@ -1,15 +1,12 @@
 #pragma once
 #include "Command.h"
+#include "CommandConversions.h"
 #include "ElasticBuffer.h"
 
-// Decodes commands from character stream sent to the microcontroller
+// Decodes commands from stream of characters sent to the microcontroller. Buffers incoming characters
+// to prevent data loss from signal delays.
 class CommandDecoder {
 public:
-	static const int COMMAND_START = '#';
-	static const int COMMAND_END = '\n';
-	static const int COMMAND_LENGTH = 4;
-	static const int NUM_CONVERSIONS = 4;
-
 	CommandDecoder();
 	~CommandDecoder();
 	const void addChar(const char nextChar);
@@ -18,25 +15,10 @@ public:
 	const Command* next();
 	const void clear();
 private:
-	// Mapping between raw user format ("CONT", "PRNT", etc...) and correct command type enum value.
-	struct CommandTypeMap {
-		const char* raw;
-		enum CommandType val;
-
-		CommandTypeMap(const char raw[], const enum CommandType val) {
-			this->raw = raw;
-			this->val = val;
-		}
-
-		~CommandTypeMap() {
-			delete[] this->raw;
-		}
-	};
-
-	const CommandTypeMap* conversions;
-	ElasticBuffer<Command>* commandBuffer;
-	ElasticBuffer<char>* charBuffer;
-	bool encounteredStart;
+	CommandConversions* conversions;
+	ElasticBuffer<Command>* commandBuffer;	// Buffer for output parsed commands
+	ElasticBuffer<char>* charBuffer;		// Buffer for input characters
+	bool encounteredStart;					// Helpful indicator for determining whether or not to parse the characters into a command
 
 	const bool tryParseType(enum CommandType& type) const;
 	const bool tryParseInt(int& result)const;

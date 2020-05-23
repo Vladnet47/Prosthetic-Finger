@@ -1,21 +1,7 @@
 #include "CommandDecoder.h"
 
 CommandDecoder::CommandDecoder() {
-	// Initialize conversions from raw characters to command enum
-	/*
-	const CommandTypeMap conversions[CommandDecoder::NUM_CONVERSIONS] = {
-		CommandTypeMap(new const char[CommandDecoder::COMMAND_LENGTH] {'C', 'O', 'N', 'T'}, CONTRACT_HAND),
-		CommandTypeMap(new const char[CommandDecoder::COMMAND_LENGTH] {'E', 'X', 'T', 'D'}, EXTEND_HAND),
-		CommandTypeMap(new const char[CommandDecoder::COMMAND_LENGTH] {'S', 'T', 'O', 'P'}, STOP),
-		CommandTypeMap(new const char[CommandDecoder::COMMAND_LENGTH] {'P', 'R', 'N', 'T'}, LIST_BUFFER)
-	};
-	*/
-	this->conversions = new CommandTypeMap[CommandDecoder::NUM_CONVERSIONS]{
-		CommandTypeMap(new const char[CommandDecoder::COMMAND_LENGTH] {'C', 'O', 'N', 'T'}, CONTRACT_HAND),
-		CommandTypeMap(new const char[CommandDecoder::COMMAND_LENGTH] {'E', 'X', 'T', 'D'}, EXTEND_HAND),
-		CommandTypeMap(new const char[CommandDecoder::COMMAND_LENGTH] {'S', 'T', 'O', 'P'}, STOP),
-		CommandTypeMap(new const char[CommandDecoder::COMMAND_LENGTH] {'P', 'R', 'N', 'T'}, LIST_BUFFER)
-	};
+	this->conversions = new CommandConversions();
 
 	// Initialize character and command length buffers
 	this->commandBuffer = new ElasticBuffer<Command>();
@@ -24,7 +10,7 @@ CommandDecoder::CommandDecoder() {
 }
 
 CommandDecoder::~CommandDecoder() {
-	delete[] this->conversions;
+	delete this->conversions;
 	delete this->commandBuffer;
 	delete this->charBuffer;
 }
@@ -33,16 +19,16 @@ CommandDecoder::~CommandDecoder() {
 const void CommandDecoder::addChar(const char nextChar) {
 	const int size = this->charBuffer->size();
 
-	if (this->encounteredStart && nextChar == CommandDecoder::COMMAND_START || !this->encounteredStart && nextChar == CommandDecoder::COMMAND_END) {
+	if (this->encounteredStart && nextChar == CommandConversions::COMMAND_START || !this->encounteredStart && nextChar == CommandConversions::COMMAND_END) {
 		// Illegal sequence of characters (two start symbols without end in between, end symbol without start)
 		// Create new command and add it to command buffer
 		this->commandBuffer->push(Command(UNDEFINED, 0, this->dumpCharBuffer(), size));
 	}
-	else if (nextChar == CommandDecoder::COMMAND_START) {
+	else if (nextChar == CommandConversions::COMMAND_START) {
 		// Have not yet encountered start symbol, so set that to true
 		this->encounteredStart = true;
 	}
-	else if (nextChar == CommandDecoder::COMMAND_END) {
+	else if (nextChar == CommandConversions::COMMAND_END) {
 		// Parse command from character buffer and add to buffer
 		this->encounteredStart = false;
 
@@ -50,7 +36,7 @@ const void CommandDecoder::addChar(const char nextChar) {
 		enum CommandType commandType;
 		if (this->tryParseType(commandType)) {
 			// On success, remove command characters from buffer
-			for (int i = 0; i < CommandDecoder::COMMAND_LENGTH; ++i) {
+			for (int i = 0; i < CommandConversions::COMMAND_LENGTH; ++i) {
 				delete this->charBuffer->pop();
 			}
 
@@ -63,7 +49,7 @@ const void CommandDecoder::addChar(const char nextChar) {
 			}
 			else {
 				// On failure, store characters in command blob data
-				this->commandBuffer->push(Command(commandType, 0, this->dumpCharBuffer(), size - CommandDecoder::COMMAND_LENGTH));
+				this->commandBuffer->push(Command(commandType, 0, this->dumpCharBuffer(), size - CommandConversions::COMMAND_LENGTH));
 			}
 		}
 		else {
@@ -107,35 +93,24 @@ const void CommandDecoder::clear() {
 // to command type enum value. Returns false if failed to parse command from chars.
 const bool CommandDecoder::tryParseType(enum CommandType& type) const {
 	const int size = this->charBuffer->size();
-	if (size < CommandDecoder::COMMAND_LENGTH) {
+	if (size < CommandConversions::COMMAND_LENGTH) {
 		return false;
 	}
 
-	for (int i = 0; i < CommandDecoder::NUM_CONVERSIONS; ++i) {
-		const CommandTypeMap* conversion = &this->conversions[i];
-
-		// Get required format
-		const char* format = conversion->raw;
-
-		// Count number of matching characters
-		int correctCount = 0;
-		for (int j = 0; j < CommandDecoder::COMMAND_LENGTH; ++j) {
-			const char* c = this->charBuffer->get(j);
-			if (*c == format[j]) {
-				++correctCount;
-			}
+	// Copy first COMMAND_LENGTH characters of char buffer
+	char* chars = new char[CommandConversions::COMMAND_LENGTH];
+	for (int i = 0; i < CommandConversions::COMMAND_LENGTH; ++i) {
+		if (i >= size) {
+			chars[i] = '-';
 		}
-
-		// If characters match conversion sequence
-		if (correctCount == CommandDecoder::COMMAND_LENGTH) {
-			// Set 'type' to correct enum value
-			type = conversion->val;
-
-			return true;
+		else {
+			chars[i] = *this->charBuffer->get(i);
 		}
 	}
 
-	return false;
+	type = this->conversions->tryParse(chars, CommandConversions::COMMAND_LENGTH);
+	delete chars;
+	return type != UNDEFINED;
 }
 
 // Returns true if successfully parsed integer from the character buffer
