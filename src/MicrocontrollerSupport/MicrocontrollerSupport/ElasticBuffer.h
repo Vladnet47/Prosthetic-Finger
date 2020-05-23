@@ -1,18 +1,18 @@
 #pragma once
 #include "Buffer.h"
+#include "Util.h"
 
 template <class T>
 class ElasticBuffer : public Buffer<T> {
 public:
 	ElasticBuffer();
 	~ElasticBuffer();
-	const T* get(const int index) const;
-	const T* peekFront() const;
-	const T* peekBack() const;
-	const T* remove(const int index);
-	const T* pop();
-	void push(const T& item);
-	void clear();
+	const T* get(const int index) override;
+	const T* peek() override;
+	const T* remove(const int index) override;
+	const T* pop() override;
+	void push(const T& item) override;
+	void clear() override;
 private:
 	// Node for bidirectional linked list
 	struct BufferNode {
@@ -32,6 +32,11 @@ private:
 	// Bidirectional linked list of nodes
 	BufferNode* head;
 	BufferNode* tail;
+
+	BufferNode* lastAccessed;	// Command last accessed by get method (to improve consecutive retrieval speeds)
+	int lastAccessedIndex;		// Index of last accessed command
+
+	BufferNode* getPointer(const int index) const;
 };
 
 template <class T>
@@ -47,93 +52,97 @@ ElasticBuffer<T>::~ElasticBuffer() {
 
 template <class T>
 // Returns pointer to item at target index, or nullptr if index is out of bounds or buffer is empty
-const T* ElasticBuffer<T>::get(const int index) const {
-	if (index < 0 || index >= Buffer<T>::numberOfItems || this->isEmpty()) {
+const T* ElasticBuffer<T>::get(const int index) {
+	BufferNode* node = this->getPointer(index);
+	if (node == nullptr) {
 		return nullptr;
 	}
 
-	BufferNode* temp = this->head;
-	for (int i = 1; i <= index; ++i) {
-		temp = temp->next;
+	// Update last accessed pointer if desired node wasn't the head or tail
+	if (index != 0 || index != this->size() - 1) {
+		this->lastAccessed = node;
+		this->lastAccessedIndex = index;
 	}
 
-	return temp->item;
+	return node->item;
 }
 
 template <class T>
 // Returns pointer to first item in buffer, or nullptr if buffer is empty
-const T* ElasticBuffer<T>::peekFront() const {
-	return this->isEmpty() ? nullptr : this->head->item;
-}
-
-template <class T>
-// Returns pointer to last item in buffer, or nullptr if buffer is empty
-const T* ElasticBuffer<T>::peekBack() const {
-	return this->isEmpty() ? nullptr : this->tail->item;
+const T* ElasticBuffer<T>::peek() {
+	return this->get(0);
 }
 
 template <class T>
 // Removes item at target index from buffer and returns pointer to it
 const T* ElasticBuffer<T>::remove(const int index) {
-	// Return nullptr if invalid index or empty buffer
-	if (index < 0 || index >= Buffer<T>::numberOfItems || this->isEmpty()) {
-		return nullptr;
+	const T* result = nullptr;
+
+	if (index == 0) {
+		if (this->head != nullptr) {
+			// Extract data from head
+			result = this->head->item;
+			this->head->item = nullptr;
+
+			// If last item was removed, put buffer in valid clear state
+			if (this->head->next == nullptr) {
+				this->clear();
+			}
+			else {
+				// Otherwise, just delete first node
+				BufferNode* temp = this->head->next;
+				temp->prev = nullptr;
+				delete this->head;
+				this->head = temp;
+				--Buffer<T>::numberOfItems;
+			}
+
+			// Don't modify last accessed, but keep pointing to the same node
+			--this->lastAccessedIndex;
+		}
 	}
-	// Return first value
-	else if (index == 0) {
-		return this->pop();
-	}
-	// Return value besides first
 	else {
-		// Set temp pointer to buffer node prior to target index
-		BufferNode* temp = this->head;
-		for (int i = 1; i < index; ++i) {
-			temp = temp->next;
+		BufferNode* node = this->getPointer(index - 1);
+		if (node != nullptr) {
+			BufferNode* toRemove = node->next;
+
+			// Extract data from the next buffer node
+			result = toRemove->item;
+			toRemove->item = nullptr;
+
+			// Fix pointers
+			node->next = toRemove->next;
+			if (node->next != nullptr) {
+				node->next->prev = node;
+			}
+			else {
+				// Since it is last item, fix tail pointer
+				this->tail = node;
+			}
+
+			delete toRemove;
+			--Buffer<T>::numberOfItems;
+
+			if (this->lastAccessed != nullptr) {
+				// If deleted last accessed node, set last accessed to null
+				if (this->lastAccessedIndex == index) {
+					this->lastAccessed = nullptr;
+				}
+				// If deleted earlier node, update last accessed index to point to same node
+				else if (this->lastAccessedIndex > index) {
+					--this->lastAccessedIndex;
+				}
+			}
 		}
-
-		// Extract data from the next buffer node
-		const T* result = temp->next->item;
-		temp->next->item = nullptr;
-
-		// Delete next buffer node
-		BufferNode* next = temp->next->next;
-		delete temp->next;
-
-		// Fix pointers
-		temp->next = next;
-		if (next != nullptr) {
-			next->prev = temp;
-		}
-
-		return result;
 	}
+
+	return result;
 }
 
 template <class T>
 // Removes first item from buffer and returns pointer to it
 const T* ElasticBuffer<T>::pop() {
-	if (this->isEmpty()) {
-		return nullptr;
-	}
-
-	// Extract data from node
-	const T* result = this->head->item;
-	this->head->item = nullptr;
-
-	// If last item was removed, put buffer in valid clear state
-	if (this->head->next == nullptr) {
-		this->clear();
-	}
-	// Otherwise, just delete first node
-	else {
-		BufferNode* temp = this->head->next;
-		temp->prev = nullptr;
-		delete this->head;
-		this->head = temp;
-		--Buffer<T>::numberOfItems;
-	}
-
-	return result;
+	return this->remove(0);
 }
 
 template <class T>
@@ -166,5 +175,55 @@ void ElasticBuffer<T>::clear() {
 	}
 
 	this->tail = nullptr;
+	this->lastAccessed = nullptr;
+	this->lastAccessedIndex = 0;
 	Buffer<T>::numberOfItems = 0;
+}
+
+template <class T>
+// Returns pointer to node at provided index, or nullptr if index is out of bounds. Utilizes
+// additional pointer to last accessed item to improve lookup efficiency of nearby indeces.
+typename ElasticBuffer<T>::BufferNode* ElasticBuffer<T>::getPointer(const int index) const {
+	const int size = this->size();
+
+	if (this->isEmpty() || index < 0 || index >= size) {
+		return nullptr;
+	}
+	else if (index == 0) {
+		return this->head;
+	}
+	else if (index == size - 1) {
+		return this->tail;
+	}
+	else {
+		// Calculate distances from all three pointers
+		const int distFromLast = this->lastAccessed == nullptr ? size : Util::Math::abs(this->lastAccessedIndex - index);
+		const int distFromHead = index - 0;
+		const int distFromTail = size - index - 1;
+
+		BufferNode* closest;
+
+		// Find shortest distance, copy closest pointer, and determine direction it should move along buffer (true = towards next, false = towards previous)
+		const int closestDist = Util::Math::min(distFromLast, Util::Math::min(distFromHead, distFromTail));
+		bool moveTowardsNext;
+		if (closestDist == distFromLast) {
+			closest = this->lastAccessed;
+			moveTowardsNext = index - lastAccessedIndex >= 0;
+		}
+		else if (closestDist == distFromHead) {
+			closest = this->head;
+			moveTowardsNext = true;
+		}
+		else {
+			closest = this->tail;
+			moveTowardsNext = false;
+		}
+
+		// Navigate pointer to index
+		for (int i = 0; i < closestDist; ++i) {
+			closest = moveTowardsNext ? closest->next : closest->prev;
+		}
+
+		return closest;
+	}
 }

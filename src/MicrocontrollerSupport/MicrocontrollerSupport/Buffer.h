@@ -3,11 +3,11 @@
 template <class T>
 class Buffer {
 public:
-	virtual const T* get(const int index) const;
-	virtual const T* peekFront() const;
-	virtual const T* peekBack() const;
+	virtual const T* get(const int index);
+	virtual const T* peek();
 	virtual const T* pop();
 	virtual void push(const T& item);
+	virtual const T* remove(const int index);
 	int size() const;
 	bool isEmpty() const;
 	virtual void clear();
@@ -16,17 +16,12 @@ protected:
 };
 
 template <class T>
-const T* Buffer<T>::get(const int index) const {
+const T* Buffer<T>::get(const int index) {
 	return nullptr;
 }
 
 template <class T>
-const T* Buffer<T>::peekFront() const {
-	return nullptr;
-}
-
-template <class T>
-const T* Buffer<T>::peekBack() const {
+const T* Buffer<T>::peek() {
 	return nullptr;
 }
 
@@ -37,6 +32,11 @@ const T* Buffer<T>::pop() {
 
 template <class T>
 void Buffer<T>::push(const T& item) {}
+
+template <class T>
+const T* Buffer<T>::remove(const int index) {
+	return nullptr;
+}
 
 template <class T>
 int Buffer<T>::size() const {

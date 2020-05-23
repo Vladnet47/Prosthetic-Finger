@@ -213,6 +213,12 @@ void testEBuffer() {
 	ElasticBuffer.push(k);
 	ElasticBuffer.push(i);
 
+	for (int index = 0; index < ElasticBuffer.size(); ++index) {
+		if (ElasticBuffer.get(index) == nullptr) {
+			cout << "Get index failed." << endl;
+		}
+	}
+
 	const int* c = ElasticBuffer.pop();
 	if (*c != i) {
 		cout << "Pop failed." << endl;
