@@ -1,8 +1,9 @@
 #pragma once
-#include "Command.h"
-#include "CommandConversions.h"
-#include "ElasticBuffer.h"
 #include "Util.h"
+#include "CommandConversions.h"
+#include "Command.h"
+#include "CommandType.h"
+#include "ElasticBuffer.h"
 
 // Decodes commands from stream of characters sent to the microcontroller. Buffers incoming characters
 // to prevent data loss from signal delays.

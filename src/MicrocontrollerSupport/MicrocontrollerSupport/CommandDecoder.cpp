@@ -95,7 +95,7 @@ const bool CommandDecoder::tryParseType(enum CommandType& type) const {
 	const int size = this->charBuffer->size();
 	if (size < CommandConversions::COMMAND_LENGTH) {
 		return false;
-	}
+	} 
 
 	// Copy first COMMAND_LENGTH characters of char buffer
 	char* chars = new char[CommandConversions::COMMAND_LENGTH];
