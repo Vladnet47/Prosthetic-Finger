@@ -6,12 +6,13 @@ Timer::Timer(const unsigned long startTime, const int duration) {
 
 Timer::~Timer() {}
 
+// Sets timer to given duration starting from given time
 void Timer::set(const unsigned long startTime, const int duration) {
 	this->startTime = startTime;
 	this->duration = duration;
 }
 
-// Just sets timer elapsed to true if unsigned long overflows
+// Returns true if timer is elapsed
 bool Timer::isElapsed(const unsigned long currentTime) const {
-	return currentTime < this->startTime || currentTime > this->startTime + duration;
+	return currentTime - this->startTime > this->duration;
 }

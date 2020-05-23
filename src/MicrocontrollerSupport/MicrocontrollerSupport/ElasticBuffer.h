@@ -29,12 +29,13 @@ private:
 		BufferNode* prev;
 	};
 
-	// Bidirectional linked list of nodes
+	// Pointers to start and end of linked list
 	BufferNode* head;
 	BufferNode* tail;
 
-	BufferNode* lastAccessed;	// Command last accessed by get method (to improve consecutive retrieval speeds)
-	int lastAccessedIndex;		// Index of last accessed command
+	// Keep track of last accessed index/node to improve nearby retrieval speeds
+	BufferNode* lastAccessed;
+	int lastAccessedIndex;
 
 	BufferNode* getPointer(const int index) const;
 };
@@ -102,6 +103,7 @@ const T* ElasticBuffer<T>::remove(const int index) {
 		}
 	}
 	else {
+		// Get pointer to node before the one to delete
 		BufferNode* node = this->getPointer(index - 1);
 		if (node != nullptr) {
 			BufferNode* toRemove = node->next;
@@ -110,13 +112,13 @@ const T* ElasticBuffer<T>::remove(const int index) {
 			result = toRemove->item;
 			toRemove->item = nullptr;
 
-			// Fix pointers
+			// Update next/prev pointers
 			node->next = toRemove->next;
 			if (node->next != nullptr) {
 				node->next->prev = node;
 			}
 			else {
-				// Since it is last item, fix tail pointer
+				// If removing last item, update tail pointer
 				this->tail = node;
 			}
 
@@ -124,11 +126,11 @@ const T* ElasticBuffer<T>::remove(const int index) {
 			--Buffer<T>::numberOfItems;
 
 			if (this->lastAccessed != nullptr) {
-				// If deleted last accessed node, set last accessed to null
+				// If deleted last accessed node, set last accessed to nullptr
 				if (this->lastAccessedIndex == index) {
 					this->lastAccessed = nullptr;
 				}
-				// If deleted earlier node, update last accessed index to point to same node
+				// If deleted earlier node, shift last accessed index left
 				else if (this->lastAccessedIndex > index) {
 					--this->lastAccessedIndex;
 				}
@@ -174,6 +176,7 @@ void ElasticBuffer<T>::clear() {
 		this->head = temp;
 	}
 
+	// Update all pointers and counts
 	this->tail = nullptr;
 	this->lastAccessed = nullptr;
 	this->lastAccessedIndex = 0;

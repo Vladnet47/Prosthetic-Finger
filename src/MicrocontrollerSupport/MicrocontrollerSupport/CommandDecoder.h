@@ -1,5 +1,6 @@
 #pragma once
 #include "Util.h"
+#include "Timer.h"
 #include "CommandConversions.h"
 #include "Command.h"
 #include "CommandType.h"
@@ -11,13 +12,14 @@ class CommandDecoder {
 public:
 	CommandDecoder();
 	~CommandDecoder();
+
 	const void addChar(const char nextChar);
 	const void addChars(const char* nextChars, const int length);
 	const bool hasNext() const;
 	const Command* next();
 	const void clear();
 private:
-	CommandConversions* conversions;
+	CommandConversions* conversions;		// Conversions between character stream and command type enum value
 	ElasticBuffer<Command>* commandBuffer;	// Buffer for output parsed commands
 	ElasticBuffer<char>* charBuffer;		// Buffer for input characters
 	bool encounteredStart;					// Helpful indicator for determining whether or not to parse the characters into a command
