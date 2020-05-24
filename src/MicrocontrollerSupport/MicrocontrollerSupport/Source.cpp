@@ -6,6 +6,7 @@
 #include "Command.h"
 #include <iostream>
 #include "CommandDecoder.h"
+#include "CommandSelector.h"
 
 #ifdef _DEBUG
 #define new new( _NORMAL_BLOCK , __FILE__ , __LINE__ )
@@ -16,22 +17,25 @@
 using namespace std;
 
 void testCommandDecoder() {
+	cout << "Testing Command Decoder" << endl;
+
 	CommandDecoder* commandDecoder = new CommandDecoder();
-	const Command* contract0 = new Command(CONTRACT_HAND, 0);
-	const Command* contract12 = new Command(CONTRACT_HAND, -12);
+	const Command* contract0 = new Command(CommandType::FINGER_ALL, CommandAction::CONTRACT, 0);
+	const Command* contract12 = new Command(CommandType::FINGER_ALL, CommandAction::CONTRACT, -12);
 
 	char* c1 = nullptr;
 	char* c2 = new char[0];
 	char* c3 = new char[1]{ 'a' };
 	char* c4 = new char[1]{ '#' };
-	char* c5 = new char[6]{ '#', 'C', 'O', 'N', 'T', '\n' };
-	char* c6 = new char[12]{ '#', 'C', 'O', 'N', 'T', '\n', '#', 'C', 'O', 'N', 'T', '\n' };
-	char* c7 = new char[10]{ '#', 'C', 'O', 'N', 'T', '\n', '#', 'C', 'O', 'N' };
-	char* c8 = new char[9]{ '#', 'C', 'O', 'N', 'T', '-', '1', '2', '\n' };
-	char* c9 = new char[9]{ '#', 'C', 'O', 'N', 'T', '-', '1', 'a', '\n' };
-	char* c10 = new char[4]{ '#', 'C', 'O', '\n' };
-	char* c11 = new char[9]{ '#', 'C', 'O', 'D', 'D', '-', '1', '2', '\n' };
-	char* c12 = new char[10]{ '#', 'C', 'O', 'N', 'T', '\n', '#', 'C', 'O', '\n' };
+	char* c5 = new char[8]{ '#', 'F', 'A', 'C', 'O', 'N', 'T', '\n' };
+	char* c6 = new char[16]{ '#', 'F', 'A', 'C', 'O', 'N', 'T', '\n', '#', 'F', 'A', 'C', 'O', 'N', 'T', '\n' };
+	char* c7 = new char[14]{ '#', 'F', 'A', 'C', 'O', 'N', 'T', '\n', '#', 'F', 'A', 'C', 'O', 'N' };
+	char* c8 = new char[11]{ '#', 'F', 'A', 'C', 'O', 'N', 'T', '-', '1', '2', '\n' };
+	char* c9 = new char[11]{ '#', 'F', 'A', 'C', 'O', 'N', 'T', '-', '1', 'a', '\n' };
+	char* c10 = new char[6]{ '#', 'F', 'A', 'C', 'O', '\n' };
+	char* c11 = new char[11]{ '#', 'F', 'A', 'C', 'O', 'D', 'D', '-', '1', '2', '\n' };
+	char* c12 = new char[14]{ '#', 'F', 'A', 'C', 'O', 'N', 'T', '\n', '#', 'F', 'A', 'C', 'O', '\n' };
+	char* c13 = new char[4]{ '#', 'C', 'O', '\n' };
 
 	commandDecoder->addChars(c1, 0);
 	if (commandDecoder->hasNext() || commandDecoder->next() != nullptr) {
@@ -55,7 +59,7 @@ void testCommandDecoder() {
 
 	commandDecoder->clear();
 
-	commandDecoder->addChars(c5, 6);
+	commandDecoder->addChars(c5, 8);
 	if (commandDecoder->hasNext()) {
 		const Command* command = commandDecoder->next();
 		if (*command != *contract0) {
@@ -68,7 +72,7 @@ void testCommandDecoder() {
 	}
 	commandDecoder->clear();
 
-	commandDecoder->addChars(c6, 12);
+	commandDecoder->addChars(c6, 16);
 	if (commandDecoder->hasNext()) {
 		const Command* command = commandDecoder->next();
 		if (*command != *contract0) {
@@ -92,7 +96,7 @@ void testCommandDecoder() {
 	}
 	commandDecoder->clear();
 
-	commandDecoder->addChars(c7, 10);
+	commandDecoder->addChars(c7, 14);
 	if (commandDecoder->hasNext()) {
 		const Command* command = commandDecoder->next();
 		if (*command != *contract0) {
@@ -109,7 +113,7 @@ void testCommandDecoder() {
 	}
 	commandDecoder->clear();
 
-	commandDecoder->addChars(c8, 9);
+	commandDecoder->addChars(c8, 11);
 	if (commandDecoder->hasNext()) {
 		const Command* command = commandDecoder->next();
 		if (*command != *contract12) {
@@ -122,10 +126,10 @@ void testCommandDecoder() {
 	}
 	commandDecoder->clear();
 
-	commandDecoder->addChars(c9, 9);
+	commandDecoder->addChars(c9, 11);
 	if (commandDecoder->hasNext()) {
 		const Command* command = commandDecoder->next();
-		if (command->type() == CONTRACT_HAND && command->bLength() != 3) {
+		if (command->type() != CommandType::FINGER_ALL && command->action() == CommandAction::CONTRACT && command->bLength() != 3) {
 			cout << "Test 9 failed" << endl;
 		}
 		delete command;
@@ -135,10 +139,10 @@ void testCommandDecoder() {
 	}
 	commandDecoder->clear();
 
-	commandDecoder->addChars(c10, 4);
+	commandDecoder->addChars(c10, 6);
 	if (commandDecoder->hasNext()) {
 		const Command* command = commandDecoder->next();
-		if (command->type() != UNDEFINED && command->bLength() != 2) {
+		if (command->type() != CommandType::FINGER_ALL && command->action() != CommandAction::UNDEFINED && command->bLength() != 2) {
 			cout << "Test 10 failed" << endl;
 		}
 		delete command;
@@ -148,10 +152,10 @@ void testCommandDecoder() {
 	}
 	commandDecoder->clear();
 
-	commandDecoder->addChars(c11, 9);
+	commandDecoder->addChars(c11, 11);
 	if (commandDecoder->hasNext()) {
 		const Command* command = commandDecoder->next();
-		if (command->type() != UNDEFINED && command->bLength() != 7) {
+		if (command->type() != CommandType::FINGER_ALL && command->action() != CommandAction::UNDEFINED && command->bLength() != 7) {
 			cout << "Test 11 failed" << endl;
 		}
 		delete command;
@@ -160,7 +164,7 @@ void testCommandDecoder() {
 		cout << "Test 11 failed" << endl;
 	}
 
-	commandDecoder->addChars(c12, 10);
+	commandDecoder->addChars(c12, 14);
 	if (commandDecoder->hasNext()) {
 		const Command* command = commandDecoder->next();
 		if (*command != *contract0) {
@@ -173,7 +177,7 @@ void testCommandDecoder() {
 	}
 	if (commandDecoder->hasNext()) {
 		const Command* command = commandDecoder->next();
-		if (command->type() != UNDEFINED && command->bLength() != 2) {
+		if (command->type() != CommandType::FINGER_ALL && command->action() != CommandAction::UNDEFINED && command->bLength() != 2) {
 			cout << "Test 12 failed" << endl;
 		}
 		delete command;
@@ -182,6 +186,18 @@ void testCommandDecoder() {
 		cout << "Test 12 failed" << endl;
 	}
 	commandDecoder->clear();
+
+	commandDecoder->addChars(c13, 4);
+	if (commandDecoder->hasNext()) {
+		const Command* command = commandDecoder->next();
+		if (command->type() != CommandType::UNDEFINED && command->action() != CommandAction::UNDEFINED && command->bLength() != 4) {
+			cout << "Test 13 failed" << endl;
+		}
+		delete command;
+	}
+	else {
+		cout << "Test 13 failed" << endl;
+	}
 
 	delete[] c2;
 	delete[] c3;
@@ -194,12 +210,16 @@ void testCommandDecoder() {
 	delete[] c10;
 	delete[] c11;
 	delete[] c12;
+	delete[] c13;
 	delete contract0;
 	delete contract12;
 	delete commandDecoder;
+	cout << "All Tests Done" << endl << endl;
 }
 
 void testEBuffer() {
+	cout << "Testing Elastic Buffer" << endl;
+
 	ElasticBuffer<int> *q = new ElasticBuffer<int>();
 	auto& ElasticBuffer = *q;
 
@@ -236,9 +256,12 @@ void testEBuffer() {
 	}
 
 	delete q;
+	cout << "All Tests Done" << endl << endl;
 }
 
 void testTimer() {
+	cout << "Testing Timer" << endl;
+
 	const unsigned long startTime = 100000;
 	const int duration = 4000;
 	Timer* timer = new Timer(startTime, duration);
@@ -259,20 +282,28 @@ void testTimer() {
 	}
 
 	delete timer;
+	cout << "All Tests Done" << endl << endl;
 }
 
+/*
+void testCommandSelector() {
+	cout << "Testing Command Selector" << endl;
+	CommandSelector* selector = new CommandSelector();
+
+	const Command* undefined = new Command(UNDEFINED, 0);
+	const Command* print = new Command(LIST_BUFFER);
+	const Command* contract0 = new Command(CONTRACT, 0);
+	const Command* contract12 = new Command(CONTRACT, -12);
+
+
+	cout << "All Tests Done" << endl << endl;
+}
+*/
+
 int main(int argc, char* argv[]) {
-	cout << "Testing Elastic Buffer" << endl;
 	testEBuffer();
-	cout << "All Tests Done" << endl << endl;
-
-	cout << "Testing Timer" << endl;
 	testTimer();
-	cout << "All Tests Done" << endl << endl;
-
-	cout << "Testing Command Decoder" << endl;
 	testCommandDecoder();
-	cout << "All Tests Done" << endl << endl;
 
 	_CrtDumpMemoryLeaks();
 

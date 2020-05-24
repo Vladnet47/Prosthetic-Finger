@@ -17,44 +17,74 @@ CommandDecoder::~CommandDecoder() {
 
 // Adds single character to character buffer, to be decoded into a command
 const void CommandDecoder::addChar(const char nextChar) {
-	const int size = this->charBuffer->size();
+	int bufferSize = this->charBuffer->size();
 
 	if (this->encounteredStart && nextChar == CommandConversions::COMMAND_START || !this->encounteredStart && nextChar == CommandConversions::COMMAND_END) {
 		// Illegal sequence of characters (two start symbols without end in between, end symbol without start)
 		// Create new command and add it to command buffer
-		this->commandBuffer->push(Command(UNDEFINED, 0, this->dumpCharBuffer(), size));
+		this->commandBuffer->push(Command(CommandType::UNDEFINED, CommandAction::UNDEFINED, 0, this->dumpCharBuffer(), bufferSize));
 	}
 	else if (nextChar == CommandConversions::COMMAND_START) {
 		// Have not yet encountered start symbol, so set that to true
 		this->encounteredStart = true;
 	}
 	else if (nextChar == CommandConversions::COMMAND_END) {
-		// Parse command from character buffer and add to buffer
 		this->encounteredStart = false;
 
-		// Try to parse command from characters in buffer
+		// Try to parse the command type
 		enum CommandType commandType;
-		if (this->tryParseType(commandType)) {
-			// On success, remove command characters from buffer
-			for (int i = 0; i < CommandConversions::COMMAND_LENGTH; ++i) {
-				delete this->charBuffer->pop();
-			}
+		char* bytes = nullptr;
+		int numberOfBytes = this->copyCharBuffer(bytes, CommandConversions::COMMAND_TYPE_LENGTH);
+		bool parsed = this->conversions->tryParseType(commandType, bytes, numberOfBytes);
+		delete[] bytes;
 
-			// Try to parse integer from remaining characters in buffer
-			int numericData;
-			if (this->tryParseInt(numericData)) {
-				// On success, store integer with command
-				this->commandBuffer->push(Command(commandType, numericData));
-				this->charBuffer->clear();
-			}
-			else {
-				// On failure, store characters in command blob data
-				this->commandBuffer->push(Command(commandType, 0, this->dumpCharBuffer(), size - CommandConversions::COMMAND_LENGTH));
-			}
+		// If unsuccessfull, store remaining bytes in buffer as blob
+		if (!parsed) {
+			this->commandBuffer->push(Command(CommandType::UNDEFINED, CommandAction::UNDEFINED, 0, this->dumpCharBuffer(), bufferSize));
+			return;
+		}
+
+		// If successfull, remove type chars from the buffer
+		for (int i = 0; i < CommandConversions::COMMAND_TYPE_LENGTH; ++i) {
+			delete this->charBuffer->pop();
+		}
+		bufferSize -= CommandConversions::COMMAND_TYPE_LENGTH;
+
+		// Try to parse the command action
+		enum CommandAction commandAction;
+		bytes = nullptr;
+		numberOfBytes = this->copyCharBuffer(bytes, CommandConversions::COMMAND_ACTION_LENGTH);
+		parsed = this->conversions->tryParseAction(commandAction, bytes, numberOfBytes);
+		delete[] bytes;
+
+		if (!parsed) {
+			// If unsuccessfull, store remaining bytes in buffer as blob
+			this->commandBuffer->push(Command(commandType, CommandAction::UNDEFINED, 0, this->dumpCharBuffer(), bufferSize));
+			return;
+		}
+
+		// If successfull, remove action chars from the buffer
+		for (int i = 0; i < CommandConversions::COMMAND_ACTION_LENGTH; ++i) {
+			delete this->charBuffer->pop();
+		}
+		bufferSize -= CommandConversions::COMMAND_ACTION_LENGTH;
+
+		
+		// Try to parse and integer from the data
+		int numericData;
+		bytes = nullptr;
+		numberOfBytes = this->copyCharBuffer(bytes, bufferSize);
+		parsed = Util::Math::tryParseInt(numericData, bytes, numberOfBytes);
+		delete[] bytes;
+
+		if (!parsed) {
+			// If unsuccessful, store data chars as blob data
+			this->commandBuffer->push(Command(commandType, commandAction, 0, this->dumpCharBuffer(), bufferSize));
 		}
 		else {
-			// On failure, store command contents in blob data of new undefined command
-			this->commandBuffer->push(Command(UNDEFINED, 0, this->dumpCharBuffer(), size));
+			// If successfull, store integer and remove bytes from buffer
+			this->commandBuffer->push(Command(commandType, commandAction, numericData));
+			this->charBuffer->clear();
 		}
 	}
 	else {
@@ -89,69 +119,27 @@ const void CommandDecoder::clear() {
 	this->encounteredStart = false;
 }
 
-// Returns true if successfully parsed command type from provided array of characters and sets 'type' parameter
-// to command type enum value. Returns false if failed to parse command from chars.
-const bool CommandDecoder::tryParseType(enum CommandType& type) const {
-	const int size = this->charBuffer->size();
-	if (size < CommandConversions::COMMAND_LENGTH) {
-		return false;
-	} 
-
-	// Copy first COMMAND_LENGTH characters of char buffer
-	char* chars = new char[CommandConversions::COMMAND_LENGTH];
-	for (int i = 0; i < CommandConversions::COMMAND_LENGTH; ++i) {
-		if (i >= size) {
-			chars[i] = '-';
-		}
-		else {
-			chars[i] = *this->charBuffer->get(i);
-		}
+// Returns array of the first 'length' characters from char buffer
+const int CommandDecoder::copyCharBuffer(char*& result, const int length) const {
+	if (length <= 0) {
+		return 0;
 	}
 
-	type = this->conversions->tryParse(chars, CommandConversions::COMMAND_LENGTH);
-	delete chars;
-	return type != UNDEFINED;
-}
-
-// Returns true if successfully parsed integer from the character buffer
-const bool CommandDecoder::tryParseInt(int& result) const {
-	result = 0;
-
-	const int size = this->charBuffer->size();
-
-	// Inspect every character in array from the back
-	for (int i = size - 1; i >= 0; --i) {
-		// Get reference to character
-		const char* c = this->charBuffer->get(i);
-
-		// If '-' character, it must be the first in the list
-		if (*c == '-' && i == 0) {
-			result *= -1;
-		}
-		// If numeric, convert to integer
-		else if (*c == '0' || *c == '1' || *c == '2' || *c == '3' || *c == '4' || *c == '5' || *c == '6' || *c == '7' || *c == '8' || *c == '9') {
-			result += (*c - '0') * Util::Math::pow(10, size - i - 1);
-		}
-		// Character not numeric, or '-' character in wrong place
-		else {
-			return false;
-		}
-	}
-
-	return true;
-}
-
-// Adds undefined command to buffer and dumps contents of char buffer into it's blob storage
-const char* CommandDecoder::dumpCharBuffer() {
-	const int size = this->charBuffer->size();
+	int maxLength = Util::Math::min(length, this->charBuffer->size());
 
 	// Copy buffer contents into a byte array
-	char* blob = new char[size];
-	for (int i = 0; i < size; ++i) {
-		const char* currentChar = this->charBuffer->pop();
-		blob[i] = *currentChar;
-		delete currentChar;
+	result = new char[maxLength];
+	for (int i = 0; i < maxLength; ++i) {
+		result[i] = *this->charBuffer->get(i);
 	}
 
-	return blob;
+	return maxLength;
+}
+
+// Returns array of the first 'length' characters from char buffer
+const char* CommandDecoder::dumpCharBuffer() const {
+	char* result;
+	this->copyCharBuffer(result, this->charBuffer->size());
+	this->charBuffer->clear();
+	return result;
 }

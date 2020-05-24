@@ -3,7 +3,6 @@
 #include "Timer.h"
 #include "CommandConversions.h"
 #include "Command.h"
-#include "CommandType.h"
 #include "ElasticBuffer.h"
 
 // Decodes commands from stream of characters sent to the microcontroller. Buffers incoming characters
@@ -20,11 +19,10 @@ public:
 	const void clear();
 private:
 	CommandConversions* conversions;		// Conversions between character stream and command type enum value
-	ElasticBuffer<Command>* commandBuffer;	// Buffer for output parsed commands
-	ElasticBuffer<char>* charBuffer;		// Buffer for input characters
+	Buffer<Command>* commandBuffer;			// Buffer for output parsed commands
+	Buffer<char>* charBuffer;				// Buffer for input characters
 	bool encounteredStart;					// Helpful indicator for determining whether or not to parse the characters into a command
 
-	const bool tryParseType(enum CommandType& type) const;
-	const bool tryParseInt(int& result)const;
-	const char* dumpCharBuffer();
+	const int copyCharBuffer(char*& result, const int length) const;
+	const char* dumpCharBuffer() const;
 };
