@@ -36,27 +36,32 @@ void testCommandDecoder() {
 	char* c11 = new char[11]{ '#', 'F', 'A', 'C', 'O', 'D', 'D', '-', '1', '2', '\n' };
 	char* c12 = new char[14]{ '#', 'F', 'A', 'C', 'O', 'N', 'T', '\n', '#', 'F', 'A', 'C', 'O', '\n' };
 	char* c13 = new char[4]{ '#', 'C', 'O', '\n' };
+	char* c14 = new char[1]{ '\n' };
+
+		//\n#FACONT10\n\n#FACONT10
 
 	commandDecoder->addChars(c1, 0);
 	if (commandDecoder->hasNext() || commandDecoder->next() != nullptr) {
 		cout << "Test 1 failed" << endl;
 	}
+	commandDecoder->clear();
 
 	commandDecoder->addChars(c2, 0);
 	if (commandDecoder->hasNext() || commandDecoder->next() != nullptr) {
 		cout << "Test 2 failed" << endl;
 	}
+	commandDecoder->clear();
 
 	commandDecoder->addChars(c3, 1);
 	if (commandDecoder->hasNext() || commandDecoder->next() != nullptr) {
 		cout << "Test 3 failed" << endl;
 	}
+	commandDecoder->clear();
 
 	commandDecoder->addChars(c4, 1);
 	if (commandDecoder->hasNext() || commandDecoder->next() != nullptr) {
 		cout << "Test 4 failed" << endl;
 	}
-
 	commandDecoder->clear();
 
 	commandDecoder->addChars(c5, 8);
@@ -198,6 +203,50 @@ void testCommandDecoder() {
 	else {
 		cout << "Test 13 failed" << endl;
 	}
+	commandDecoder->clear();
+
+	commandDecoder->addChars(c14, 1);
+	if (commandDecoder->hasNext()) {
+		cout << "Test 14 failed" << endl;
+	}
+	commandDecoder->clear();
+
+	// Special test
+	const char* d1 = new char[9]{ '#','F','A','C','O','N','T','2','\n' };
+	const char* d2 = new char[1]{ '\n' };
+	commandDecoder->addChars(d1, 9);
+	if (commandDecoder->hasNext()) {
+		const Command* command = commandDecoder->next();
+		if (command->type() != CommandType::FINGER_ALL && command->action() != CommandAction::CONTRACT && command->nData() != 2) {
+			cout << "Test 15 failed" << endl;
+		}
+		delete command;
+	}
+	else {
+		cout << "Test 15 failed" << endl;
+	}
+	commandDecoder->addChars(d2, 1);
+	if (commandDecoder->hasNext()) {
+		cout << "Test 15 failed" << endl;
+	}
+	commandDecoder->addChars(d1, 9);
+	if (commandDecoder->hasNext()) {
+		const Command* command = commandDecoder->next();
+		if (command->type() != CommandType::FINGER_ALL && command->action() != CommandAction::CONTRACT && command->nData() != 2) {
+			cout << "Test 15 failed" << endl;
+		}
+		delete command;
+	}
+	else {
+		cout << "Test 15 failed" << endl;
+	}
+	commandDecoder->clear();
+
+	delete[] d1;
+	delete[] d2;
+
+	// Write test
+	// #FACONT10#FACONT10#FACONT10#FACONT10#FACONT10#FACONT10#FACONT10
 
 	delete[] c2;
 	delete[] c3;
@@ -211,6 +260,7 @@ void testCommandDecoder() {
 	delete[] c11;
 	delete[] c12;
 	delete[] c13;
+	delete[] c14;
 	delete contract0;
 	delete contract12;
 	delete commandDecoder;
@@ -300,7 +350,9 @@ void testTimer() {
 
 	const unsigned long startTime = 100000;
 	const int duration = 4000;
-	Timer* timer = new Timer(startTime, duration);
+	Timer* timer = new Timer(duration);
+
+	timer->start(startTime);
 
 	const unsigned long currentTime1 = 102000;
 	if (timer->isElapsed(currentTime1)) {

@@ -1,6 +1,5 @@
 #include "CommandSelector.h"
 
-
 CommandSelector::CommandSelector() {
 	// Add buffer for every command type value in the enum (except for UNDEFINED)
 	this->commandBuffers = new BufferEnumMap[NUM_TYPES];
@@ -16,7 +15,7 @@ CommandSelector::~CommandSelector() {
 
 // Adds non-undefined command to proper buffer
 void CommandSelector::add(const Command& command) {
-	if (command.type() != CommandType::UNDEFINED) {
+	if (command.type() != CommandType::UNDEFINED && command.action() != CommandAction::UNDEFINED) {
 		Buffer<Command>* buffer = this->getBuffer(command.type());
 		if (buffer != nullptr) {
 			buffer->push(command);

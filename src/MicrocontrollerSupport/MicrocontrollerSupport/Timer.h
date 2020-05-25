@@ -2,12 +2,15 @@
 
 class Timer {
 public:
-	Timer(unsigned long startTime, const int duration);
+	Timer(const int duration);
 	~Timer();
-	void set(unsigned long startTime, const int duration);
+	void set(const int duration);
+	void start(const unsigned long startTime);
+	void stop();
 	bool isElapsed(const unsigned long currentTime) const;
 
 private:
 	unsigned long startTime;
 	int duration;
+	bool stopped;
 };

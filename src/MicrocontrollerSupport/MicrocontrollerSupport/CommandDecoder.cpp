@@ -35,21 +35,32 @@ CommandDecoder::~CommandDecoder() {
 
 // Adds single character to character buffer, to be decoded into a command
 const void CommandDecoder::addChar(const char nextChar) {
-	int bufferSize = this->charBuffer->size();
 	char* bytes = nullptr;
 	int numberOfBytes;
 
-	if (this->encounteredStart && nextChar == CommandDecoder::COMMAND_START || !this->encounteredStart && nextChar == CommandDecoder::COMMAND_END) {
-		// Illegal sequence of characters (two start symbols without end in between, end symbol without start)
-		// Create new command and add it to command buffer
-		numberOfBytes = this->dumpAndCopyCharBuffer(bytes, bufferSize);
-		this->commandBuffer->push(Command(CommandType::UNDEFINED, CommandAction::UNDEFINED, 0, bytes, numberOfBytes));
-	}
-	else if (nextChar == CommandDecoder::COMMAND_START) {
+	if (nextChar == CommandDecoder::COMMAND_START) {
 		// Have not yet encountered start symbol, so set that to true
 		this->encounteredStart = true;
+
+		// Remove all previous symbols from buffer
+		if (!this->charBuffer->isEmpty()) {
+			numberOfBytes = this->dumpAndCopyCharBuffer(bytes, this->charBuffer->size());
+			this->commandBuffer->push(Command(CommandType::UNDEFINED, CommandAction::UNDEFINED, 0, bytes, numberOfBytes));
+		}
 	}
 	else if (nextChar == CommandDecoder::COMMAND_END) {
+		const bool empty = this->charBuffer->isEmpty();
+
+		// If invalid sequence of symbols (end character w/o start, or just single end character), dump char buffer
+		if (empty) {
+			return;
+		}
+		else if (!empty && !this->encounteredStart) {
+			numberOfBytes = this->dumpAndCopyCharBuffer(bytes, this->charBuffer->size());
+			this->commandBuffer->push(Command(CommandType::UNDEFINED, CommandAction::UNDEFINED, 0, bytes, numberOfBytes));
+			return;
+		}
+
 		this->encounteredStart = false;
 
 		// Try to parse the command type
@@ -58,14 +69,13 @@ const void CommandDecoder::addChar(const char nextChar) {
 
 		// If unsuccessfull, store remaining bytes in buffer as blob
 		if (!parsed) {
-			numberOfBytes = this->dumpAndCopyCharBuffer(bytes, bufferSize);
+			numberOfBytes = this->dumpAndCopyCharBuffer(bytes, this->charBuffer->size());
 			this->commandBuffer->push(Command(CommandType::UNDEFINED, CommandAction::UNDEFINED, 0, bytes, numberOfBytes));
 			return;
 		}
 
 		// If successfull, remove type chars from the buffer
 		this->dumpCharBuffer(CommandDecoder::COMMAND_TYPE_LENGTH);
-		bufferSize -= CommandDecoder::COMMAND_TYPE_LENGTH;
 
 		// Try to parse the command action
 		enum CommandAction commandAction;
@@ -73,18 +83,17 @@ const void CommandDecoder::addChar(const char nextChar) {
 
 		if (!parsed) {
 			// If unsuccessfull, store remaining bytes in buffer as blob
-			numberOfBytes = this->dumpAndCopyCharBuffer(bytes, bufferSize);
+			numberOfBytes = this->dumpAndCopyCharBuffer(bytes, this->charBuffer->size());
 			this->commandBuffer->push(Command(commandType, CommandAction::UNDEFINED, 0, bytes, numberOfBytes));
 			return;
 		}
 
 		// If successfull, remove action chars from the buffer
 		this->dumpCharBuffer(CommandDecoder::COMMAND_ACTION_LENGTH);
-		bufferSize -= CommandDecoder::COMMAND_ACTION_LENGTH;
 		
 		// Try to parse and integer from the data
 		int numericData;
-		numberOfBytes = this->copyCharBuffer(bytes, bufferSize);
+		numberOfBytes = this->copyCharBuffer(bytes, this->charBuffer->size());
 		parsed = Util::Math::tryParseInt(numericData, bytes, numberOfBytes);
 		delete[] bytes;
 		bytes = nullptr;
@@ -96,7 +105,7 @@ const void CommandDecoder::addChar(const char nextChar) {
 		}
 		else {
 			// If unsuccessful, store data chars as blob data
-			numberOfBytes = this->dumpAndCopyCharBuffer(bytes, bufferSize);
+			numberOfBytes = this->dumpAndCopyCharBuffer(bytes, this->charBuffer->size());
 			this->commandBuffer->push(Command(commandType, commandAction, 0, bytes, numberOfBytes));
 		}
 	}
@@ -139,7 +148,7 @@ const int CommandDecoder::copyCharBuffer(char*& result, const int numberOfChars)
 	}
 
 	// Only initialize array if there are characters to copy
-	int maxLength = Util::Math::min(numberOfChars, this->charBuffer->size());
+	int maxLength = Util::Math::minV(numberOfChars, this->charBuffer->size());
 	if (maxLength <= 0) {
 		return 0;
 	}
@@ -169,7 +178,7 @@ void CommandDecoder::dumpCharBuffer(const int numberOfChars) {
 	}
 	else {
 		// Remove select number of characters
-		int maxLength = Util::Math::min(numberOfChars, size);
+		int maxLength = Util::Math::minV(numberOfChars, size);
 		for (int i = 0; i < maxLength; ++i) {
 			delete this->charBuffer->pop();
 		}

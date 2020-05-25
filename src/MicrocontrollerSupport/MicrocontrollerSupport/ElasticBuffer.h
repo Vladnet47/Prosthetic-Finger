@@ -216,14 +216,14 @@ typename ElasticBuffer<T>::BufferNode* ElasticBuffer<T>::getPointer(const int in
 	}
 	else {
 		// Calculate distances from all three pointers
-		const int distFromLast = this->lastAccessed == nullptr ? size : Util::Math::abs(this->lastAccessedIndex - index);
+		const int distFromLast = this->lastAccessed == nullptr ? size : Util::Math::absV(this->lastAccessedIndex - index);
 		const int distFromHead = index - 0;
 		const int distFromTail = size - index - 1;
 
 		BufferNode* closest;
 
 		// Find shortest distance, copy closest pointer, and determine direction it should move along buffer (true = towards next, false = towards previous)
-		const int closestDist = Util::Math::min(distFromLast, Util::Math::min(distFromHead, distFromTail));
+		const int closestDist = Util::Math::minV(distFromLast, Util::Math::minV(distFromHead, distFromTail));
 		bool moveTowardsNext;
 		if (closestDist == distFromLast) {
 			closest = this->lastAccessed;
