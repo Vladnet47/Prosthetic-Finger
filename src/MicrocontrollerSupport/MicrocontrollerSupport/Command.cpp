@@ -1,6 +1,7 @@
 #include "Command.h"
 
-Command::Command(enum CommandType commandType, enum CommandAction commandAction, int numericData, const char* blobData, int blobLength) {
+Command::Command(enum CommandType commandType, enum CommandAction commandAction, int numericData, const char blobData[], int blobLength) {
+	this->commandType = commandType;
 	this->commandAction = commandAction;
 	this->numericData = numericData;
 	this->blobData = blobData;
@@ -54,25 +55,29 @@ void Command::clear() {
 }
 
 // Sets object data equal to other
-void Command::operator=(const Command& other) {
-	this->clear();
+Command& Command::operator=(const Command& other) {
+	if (this != &other) {
+		this->clear();
 
-	// Copy all primitive types
-	this->commandAction = other.action();
-	this->numericData = other.nData();
-	this->blobLength = other.bLength();
+		// Copy all primitive types
+		this->commandType = other.type();
+		this->commandAction = other.action();
+		this->numericData = other.nData();
+		this->blobLength = other.bLength();
 
-	if (this->blobLength != 0 && other.bData() != nullptr) {
-		// Copy blob data
-		char* newBlobData = new char[this->blobLength];
-		const char* otherBlobData = other.bData();
-		for (int i = 0; i < this->blobLength; ++i) {
-			newBlobData[i] = otherBlobData[i];
+		if (this->blobLength != 0 && other.bData() != nullptr) {
+			// Copy blob data
+			char* newBlobData = new char[this->blobLength];
+			const char* otherBlobData = other.bData();
+			for (int i = 0; i < this->blobLength; ++i) {
+				newBlobData[i] = otherBlobData[i];
+			}
+
+			this->blobData = newBlobData;
 		}
-
-		this->blobData = newBlobData;
-		newBlobData = nullptr;
 	}
+
+	return *this;
 }
 
 // Returns true if all object data is the same, false otherwise

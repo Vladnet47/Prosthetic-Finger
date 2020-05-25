@@ -217,10 +217,45 @@ void testCommandDecoder() {
 	cout << "All Tests Done" << endl << endl;
 }
 
+void testCommand() {
+	cout << "Testing Command" << endl;
+
+	Command* command = new Command();
+	Command* contract0 = new Command(CommandType::FINGER_ALL, CommandAction::CONTRACT, 0);
+
+	if (command->type() != CommandType::UNDEFINED || command->action() != CommandAction::UNDEFINED || command->nData() != 0 || command->bLength() != 0 || command->bData() != nullptr) {
+		cout << "command undef init failed" << endl;
+	}
+
+	if (contract0->type() != CommandType::FINGER_ALL || contract0->action() != CommandAction::CONTRACT || contract0->nData() != 0 || command->bLength() != 0 || contract0->bData() != nullptr) {
+		cout << "command contract init failed" << endl;
+	}
+
+	Command* contract12 = new Command(CommandType::FINGER_ALL, CommandAction::CONTRACT, -12, new char[2]{'a', 'b'}, 2);
+	*contract0 = *contract12;
+	delete contract12;
+
+	if (contract0->type() != CommandType::FINGER_ALL || contract0->action() != CommandAction::CONTRACT || contract0->nData() != -12 || contract0->bLength() != 2 || contract0->bData()[0] != 'a' || contract0->bData()[1] != 'b') {
+		cout << "command contract copy failed" << endl;
+	}
+
+	delete command;
+	delete contract0;
+
+	cout << "All Tests Done" << endl << endl;
+}
+
 void testEBuffer() {
 	cout << "Testing Elastic Buffer" << endl;
 
-	ElasticBuffer<int> *q = new ElasticBuffer<int>();
+	// Test memory leaks
+	const Command* command = new Command(CommandType::ADMIN, CommandAction::LIST_BUFFER);
+	Buffer<Command>* buffer = new ElasticBuffer<Command>();
+	buffer->push(*command);
+	delete command;
+	delete buffer;
+
+	Buffer<int> *q = new ElasticBuffer<int>();
 	auto& ElasticBuffer = *q;
 
 	int i = 6;
@@ -256,6 +291,7 @@ void testEBuffer() {
 	}
 
 	delete q;
+
 	cout << "All Tests Done" << endl << endl;
 }
 
@@ -285,25 +321,60 @@ void testTimer() {
 	cout << "All Tests Done" << endl << endl;
 }
 
-/*
 void testCommandSelector() {
 	cout << "Testing Command Selector" << endl;
 	CommandSelector* selector = new CommandSelector();
 
-	const Command* undefined = new Command(UNDEFINED, 0);
-	const Command* print = new Command(LIST_BUFFER);
-	const Command* contract0 = new Command(CONTRACT, 0);
-	const Command* contract12 = new Command(CONTRACT, -12);
+	const Command* print = new Command(CommandType::ADMIN, CommandAction::LIST_BUFFER);
+	const Command* contract0 = new Command(CommandType::FINGER_ALL, CommandAction::CONTRACT);
+	const Command* contract12 = new Command(CommandType::FINGER_ALL, CommandAction::CONTRACT, -12);
 
+	selector->add(*print);
+	selector->add(*contract0);
+	selector->add(*contract12);
+
+	if (selector->hasNext(CommandType::UNDEFINED) || !selector->hasNext(CommandType::ADMIN) || !selector->hasNext(CommandType::FINGER_ALL)) {
+		cout << "hasNext failed." << endl;
+	}
+
+	const Command* next = selector->next(CommandType::UNDEFINED);
+	if (next != nullptr) {
+		cout << "next undef failed." << endl;
+	}
+	delete next;
+
+	next = selector->next(CommandType::ADMIN);
+	if (next == nullptr || *next != *print) {
+		cout << "next undef failed." << endl;
+	}
+	delete next;
+
+	next = selector->next(CommandType::FINGER_ALL);
+	if (next == nullptr || *next != *contract0) {
+		cout << "next fingerall1 failed." << endl;
+	}
+	delete next;
+
+	next = selector->next(CommandType::FINGER_ALL);
+	if (next == nullptr || *next != *contract12) {
+		cout << "next fingerall2 failed." << endl;
+	}
+	delete next;
+
+	delete print;
+	delete contract0;
+	delete contract12;
+	delete selector;
 
 	cout << "All Tests Done" << endl << endl;
 }
-*/
 
 int main(int argc, char* argv[]) {
-	testEBuffer();
 	testTimer();
+	testCommand();
+	testEBuffer();
 	testCommandDecoder();
+	testCommandSelector();
 
 	_CrtDumpMemoryLeaks();
 

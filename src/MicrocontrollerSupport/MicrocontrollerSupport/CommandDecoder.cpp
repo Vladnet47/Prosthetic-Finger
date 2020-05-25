@@ -21,7 +21,7 @@ CommandDecoder::CommandDecoder() {
 	};
 
 	// Initialize character and command buffers
-	this->commandBuffer = new ElasticBuffer<Command>();
+	this->commandBuffer = new ElasticBuffer<Command>(); 
 	this->charBuffer = new ElasticBuffer<char>();
 	this->encounteredStart = false;
 }
@@ -132,6 +132,7 @@ const void CommandDecoder::clear() {
 	this->encounteredStart = false;
 }
 
+// Copies and stores a specified number of characters in the result
 const int CommandDecoder::copyCharBuffer(char*& result, const int numberOfChars) const {
 	if (numberOfChars <= 0) {
 		return 0;
@@ -152,7 +153,7 @@ const int CommandDecoder::copyCharBuffer(char*& result, const int numberOfChars)
 	return maxLength;
 }
 
-// Removes specified number of characters from buffer
+// Removes and stores a specified number of characters from buffer in the result
 const int CommandDecoder::dumpAndCopyCharBuffer(char*& result, const int numberOfChars) {
 	const int actualNumberOfChars = this->copyCharBuffer(result, numberOfChars);
 	dumpCharBuffer(actualNumberOfChars);

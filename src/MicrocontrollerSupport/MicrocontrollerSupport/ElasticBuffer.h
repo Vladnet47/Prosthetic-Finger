@@ -1,12 +1,13 @@
 #pragma once
-#include "Buffer.h"
 #include "Util.h"
+#include "Buffer.h"
 
 template <class T>
 class ElasticBuffer : public Buffer<T> {
 public:
 	ElasticBuffer();
-	~ElasticBuffer();
+	ElasticBuffer(const ElasticBuffer<T>& other);
+	~ElasticBuffer() override;
 	const T* get(const int index) override;
 	const T* peek() override;
 	const T* remove(const int index) override;
@@ -16,10 +17,10 @@ public:
 private:
 	// Node for bidirectional linked list
 	struct BufferNode {
-		BufferNode(const T* item = nullptr) {
+		BufferNode(const T& item) {
 			this->next = nullptr;
 			this->prev = nullptr;
-			this->item = item;
+			this->item = new const T(item);
 		}
 		~BufferNode() {
 			delete this->item;
@@ -44,6 +45,21 @@ template <class T>
 ElasticBuffer<T>::ElasticBuffer() {
 	this->head = nullptr;
 	this->clear();
+}
+
+template <class T>
+ElasticBuffer<T>::ElasticBuffer(const ElasticBuffer<T>& other) {
+	if (*this != other) {
+		this->clear();
+
+		int count = 0;
+		const T* item = other.get(count);
+		while (item != nullptr) {
+			this->push(item);
+			++count;
+			item = other.get(count);
+		}
+	}
 }
 
 template <class T>
@@ -150,7 +166,7 @@ const T* ElasticBuffer<T>::pop() {
 template <class T>
 // Duplicates and appends item to the end of the buffer
 void ElasticBuffer<T>::push(const T& item) {
-	BufferNode* temp = new BufferNode(new const T(item));
+	BufferNode* temp = new BufferNode(item);
 
 	if (this->isEmpty()) {
 		this->tail = temp;

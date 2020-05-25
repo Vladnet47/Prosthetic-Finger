@@ -2,18 +2,37 @@
 
 template <class T>
 class Buffer {
-public:
-	virtual const T* get(const int index);
-	virtual const T* peek();
-	virtual const T* pop();
-	virtual void push(const T& item);
-	virtual const T* remove(const int index);
-	int size() const;
-	bool isEmpty() const;
-	virtual void clear();
-protected:
-	int numberOfItems;
+	public:
+		Buffer();
+		Buffer(const Buffer<T>& other);
+		virtual ~Buffer();
+		virtual const T* get(const int index);
+		virtual const T* peek();
+		virtual const T* pop();
+		virtual void push(const T& item);
+		virtual const T* remove(const int index);
+		int size() const;
+		bool isEmpty() const;
+		virtual void clear();
+	protected:
+		int numberOfItems;
 };
+
+template <class T>
+Buffer<T>::Buffer() {
+	this->clear();
+}
+
+template <class T>
+Buffer<T>::Buffer(const Buffer<T>& other) {
+	this->clear();
+	this->numberOfItems = other.numberOfItems;
+}
+
+template <class T>
+Buffer<T>::~Buffer() {
+	this->clear();
+}
 
 template <class T>
 // Return item at given index

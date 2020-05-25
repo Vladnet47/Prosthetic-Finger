@@ -1,7 +1,7 @@
 #pragma once
 
-static const int NUM_TYPES = 7;
-static const int NUM_ACTIONS = 4;
+const int NUM_TYPES = 7;
+const int NUM_ACTIONS = 4;
 
 // Type of command (what it is referring to)
 enum class CommandType {
@@ -30,7 +30,7 @@ enum class CommandAction {
 
 class Command {
 public:
-	Command(enum CommandType commandType = CommandType::UNDEFINED, enum CommandAction commandAction = CommandAction::UNDEFINED, int numericData = 0, const char* blobData = nullptr, int blobLength = 0);
+	Command(enum CommandType commandType = CommandType::UNDEFINED, enum CommandAction commandAction = CommandAction::UNDEFINED, int numericData = 0, const char blobData[] = nullptr, int blobLength = 0);
 	Command(const Command& other);
 	~Command();
 
@@ -40,7 +40,7 @@ public:
 	const char* bData() const;
 	const int bLength() const;
 
-	void operator=(const Command& other);
+	Command& operator=(const Command& other);
 	const bool operator==(const Command& other) const;
 	const bool operator!=(const Command& other) const;
 
