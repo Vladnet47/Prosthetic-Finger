@@ -4,5 +4,5 @@
 /src/MicrocontrollerSupport/MicrocontrollerSupport/Debug/
 /src/MicrocontrollerSupport/Debug/
 
-/src/Arduino/MotorController/*
-!/src/Arduino/MotorController/*.ino
+/src/HandController/*
+!/src/HandController/*.ino
