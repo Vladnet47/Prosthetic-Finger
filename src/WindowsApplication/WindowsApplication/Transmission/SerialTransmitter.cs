@@ -120,7 +120,7 @@ namespace Transmission
             catch (TimeoutException e)
             {
                 Console.WriteLine("Unable to read from serial because of timeout error: " + e.ToString());
-                return null;
+                return null; 
             }
         }
 
@@ -164,7 +164,7 @@ namespace Transmission
         /// </summary>
         public void CloseSerialPort()
         {
-            if (this.IsPortOpen())
+            if (this.Port != null)
             {
                 this.Port.Close();
             }

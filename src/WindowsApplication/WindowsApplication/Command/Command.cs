@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Command
+namespace Commands
 {
     /// <summary>
     /// Determines recipient of the command
@@ -64,7 +64,7 @@ namespace Command
         /// <param name="type"></param>
         /// <param name="action"></param>
         /// <param name="data"></param>
-        public Command(CommandTypeEnum type, CommandActionEnum action, String data)
+        public Command(CommandTypeEnum type, CommandActionEnum action, String data = "")
         {
             this.Type = type;
             this.Action = action;

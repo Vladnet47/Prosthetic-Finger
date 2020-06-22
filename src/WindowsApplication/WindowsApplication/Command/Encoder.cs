@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Command
+namespace Commands
 {
     /// <summary>
     /// Used to encode commands into striing representation for transmission
