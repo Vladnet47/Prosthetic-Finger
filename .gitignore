@@ -6,3 +6,10 @@
 
 /src/HandController/*
 !/src/HandController/*.ino
+
+/src/WindowsApplication/*
+!/src/WindowsApplication/WindowsApplication
+/src/WindowsApplication/WindowsApplication/WindowsApplication.csproj
+/src/WindowsApplication/WindowsApplication/bin
+/src/WindowsApplication/WindowsApplication/obj
+/src/WindowsApplication/WindowsApplication/App.config
