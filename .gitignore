@@ -1,14 +1,17 @@
+/src/CommProtocol/*
+!/src/CommProtocol/MicrocontrollerApplication
 /src/CommProtocol/MicrocontrollerApplication/*
 !/src/CommProtocol/MicrocontrollerApplication/old
 !/src/CommProtocol/MicrocontrollerApplication/src
 !/src/CommProtocol/MicrocontrollerApplication/tests
 
-/src/WindowsApplication/*
-!/src/WindowsApplication/Command
-!/src/WindowsApplication/Transmission
-!/src/WindowsApplication/*.cs
-!/src/WindowsApplication/*.resx
-!/src/WindowsApplication/*.config
+!/src/CommProtocol/WindowsApplication
+/src/CommProtocol/WindowsApplication/*
+!/src/CommProtocol/WindowsApplication/Command
+!/src/CommProtocol/WindowsApplication/Transmission
+!/src/CommProtocol/WindowsApplication/*.cs
+!/src/CommProtocol/WindowsApplication/*.resx
+!/src/CommProtocol/WindowsApplication/*.config
 
 /src/HandController/*
 !/src/HandController/*.ino
