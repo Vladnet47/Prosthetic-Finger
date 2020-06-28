@@ -57,11 +57,13 @@ const T* Buffer<T, SIZE>::pop() {
 // Appends item to the end of the buffer if not full.
 template <class T, size_t SIZE>
 void Buffer<T, SIZE>::push(const T& item) {
-	if (this->numberOfItems < SIZE) {
-		this->items[this->end] = item;
-		this->end = this->incrementIndex(this->end);
-		++this->numberOfItems;
+	// Remove first item if buffer full
+	if (this->numberOfItems >= SIZE) {
+		this->pop();
 	}
+	this->items[this->end] = item;
+	this->end = this->incrementIndex(this->end);
+	++this->numberOfItems;
 }
 
 // Return size of buffer

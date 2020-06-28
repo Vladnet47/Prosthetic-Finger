@@ -19,9 +19,9 @@ Command::Command(const Command& other) {
 Command::~Command() {}
 
 // Converts the provided character array into command and returns true if successful, false otherwise (leaves command in undefined state)
-const bool Command::tryParse(const char* chars, const int length) {
+const bool Command::tryParse(const char chars[MAX_CHARACTERS_IN_BUFFER], const int length) {
 	// Make sure provided character array is in command format
-	if (chars == nullptr || length < 2 + COMMAND_TYPE_LENGTH + COMMAND_ACTION_LENGTH || chars[0] != COMMAND_START || chars[length - 1] != COMMAND_END) {
+	if (length < 2 + COMMAND_TYPE_LENGTH + COMMAND_ACTION_LENGTH || chars[0] != COMMAND_START || chars[length - 1] != COMMAND_END) {
 		return false;
 	}
 
@@ -63,9 +63,9 @@ const bool Command::tryParse(const char* chars, const int length) {
 
 // Returns true if successfully parsed integer from the character buffer and sets result equal to that integer.
 // Otherwise, returns false and leaves result integer in undefined state
-const bool Command::tryParseInteger(int& result, const char chars[], const int length, const int start, const int end) const {
+const bool Command::tryParseInteger(int& result, const char chars[MAX_CHARACTERS_IN_BUFFER], const int length, const int start, const int end) const {
 	// Return false if empty
-	if (chars == nullptr || length == 0 || start < 0 || end > length) {
+	if (length == 0 || start < 0 || end > length) {
 		return false;
 	}
 

@@ -23,6 +23,8 @@ void CommandController::setMovementCommandDuration(const int duration) {
 			this->bufferEnumMaps[i].frequencyTimer.set(duration < 0 ? DEFAULT_MOVEMENT_COMMAND_DURATION : duration);
 		}
 	}
+
+	this->defaultCommandFrequencyTimer.set(duration < 0 ? DEFAULT_MOVEMENT_COMMAND_DURATION : duration);
 }
 
 // Sets duration for char buffer timer, which determines how long to wait for new chars before clearing buffer
@@ -35,8 +37,8 @@ void CommandController::setDefaultCommand(const Command& command) {
 }
 
 // Adds character array to command decoder and tries to parse commands
-void CommandController::addChars(const unsigned long currentTime, const char* chars, const int length) {
-	if (chars == nullptr || length <= 0) {
+void CommandController::addChars(const unsigned long currentTime, const char chars[MAX_CHARACTERS_IN_BUFFER], const int length) {
+	if (length <= 0) {
 		return;
 	}
 
@@ -63,7 +65,7 @@ void CommandController::addChars(const unsigned long currentTime, const char* ch
 			this->encounteredStart = false;
 
 			// Extract next command chars from buffer
-			char* bufferChars;
+			char bufferChars[MAX_CHARACTERS_IN_BUFFER];
 			int bufferCharsLength = this->dumpCharBuffer(bufferChars);
 
 			// Try to parse command and add to buffer if successful
@@ -71,8 +73,6 @@ void CommandController::addChars(const unsigned long currentTime, const char* ch
 			if (command.tryParse(bufferChars, bufferCharsLength)) {
 				this->insertCommand(currentTime, command);
 			}
-
-			delete[] bufferChars;
 		}
 		else { // If insignificant character, simply add it to buffer
 			this->charBuffer.push(chars[i]);
@@ -82,9 +82,8 @@ void CommandController::addChars(const unsigned long currentTime, const char* ch
 
 // Stores contents of char buffer as array and clears buffer
 // Returns number of chars read
-const int CommandController::dumpCharBuffer(char*& chars) {
+const int CommandController::dumpCharBuffer(char chars[MAX_CHARACTERS_IN_BUFFER]) {
 	const int length = this->charBuffer.size();
-	chars = new char[length];
 	for (int i = 0; i < length; ++i) {
 		chars[i] = *this->charBuffer.get(i);
 	}

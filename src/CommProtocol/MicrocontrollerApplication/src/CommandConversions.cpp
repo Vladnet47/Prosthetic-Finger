@@ -1,4 +1,4 @@
-#include "CommandConfig.h"
+#include "CommandConversions.h"
 
 EnumMap<CommandTypeEnum>* COMMAND_TYPE_CONVERSIONS = new EnumMap<CommandTypeEnum>[(int)CommandTypeEnum::Count - 1]{
 	   EnumMap<CommandTypeEnum>(new const char[COMMAND_TYPE_LENGTH] {'A', 'D'}, COMMAND_TYPE_LENGTH, CommandTypeEnum::ADMIN),

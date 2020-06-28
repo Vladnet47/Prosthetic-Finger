@@ -67,63 +67,118 @@ void CommandTest::OperatorTest() {
 void CommandTest::TryParseTest() {
 	cout << "Try Parse Test" << endl;
 
-	const char* chars = new char[0];
+	char chars[MAX_CHARACTERS_IN_BUFFER];
 	Command command;
 	bool parsed = command.tryParse(chars, 0);
 	Asserts::AssertFalse("1) Parsed false", parsed);
-	delete[] chars;
 
-	chars = new char[2]{'F','G'};
+	chars[0] = 'F';
+	chars[1] = 'G';
 	parsed = command.tryParse(chars, 2);
 	Asserts::AssertFalse("2) Parsed false", parsed);
-	delete[] chars;
 
-	chars = new char[2]{ COMMAND_START,COMMAND_END };
+	chars[0] = COMMAND_START;
+	chars[1] = COMMAND_END;
 	parsed = command.tryParse(chars, 2);
 	Asserts::AssertFalse("3) Parsed false", parsed);
-	delete[] chars;
 
-	chars = new char[4]{ COMMAND_START,'F','G',COMMAND_END };
+	chars[0] = COMMAND_START;
+	chars[1] = 'F';
+	chars[2] = 'G';
+	chars[3] = COMMAND_END;
 	parsed = command.tryParse(chars, 4);
 	Asserts::AssertFalse("4) Parsed false", parsed);
-	delete[] chars;
 
-	chars = new char[4]{ COMMAND_START,'F','A',COMMAND_END };
+	chars[0] = COMMAND_START;
+	chars[1] = 'F';
+	chars[2] = 'A';
+	chars[3] = COMMAND_END;
 	parsed = command.tryParse(chars, 4);
 	Asserts::AssertFalse("5) Parsed false", parsed);
-	delete[] chars;
 
-	chars = new char[8]{ COMMAND_START,'F','A','S','T','O','P',COMMAND_END };
+	chars[0] = COMMAND_START;
+	chars[1] = 'F';
+	chars[2] = 'A';
+	chars[3] = 'S';
+	chars[4] = 'T';
+	chars[5] = 'O';
+	chars[6] = 'P';
+	chars[7] = COMMAND_END;
 	parsed = command.tryParse(chars, 8);
 	Asserts::AssertTrue("6) Parsed true", parsed);
 	Asserts::AssertEqual("7) Type is finger all", command.type(), CommandTypeEnum::FINGER_ALL);
 	Asserts::AssertEqual("8) Action is stop", command.action(), CommandActionEnum::STOP);
 	Asserts::AssertEqual("9) Data is 0", command.data(), 0);
-	delete[] chars;
 
-	chars = new char[10]{ COMMAND_START,'F','A','C','O','N','T','1','0',COMMAND_END };
+	chars[0] = COMMAND_START;
+	chars[1] = 'F';
+	chars[2] = 'A';
+	chars[3] = 'C';
+	chars[4] = 'O';
+	chars[5] = 'N';
+	chars[6] = 'T';
+	chars[7] = '1';
+	chars[8] = '0';
+	chars[9] = COMMAND_END;
 	parsed = command.tryParse(chars, 10);
 	Asserts::AssertTrue("10) Parsed true", parsed);
 	Asserts::AssertEqual("11) Type is finger all", command.type(), CommandTypeEnum::FINGER_ALL);
 	Asserts::AssertEqual("12) Action is contract", command.action(), CommandActionEnum::CONTRACT);
 	Asserts::AssertEqual("13) Data is 10", command.data(), 10);
-	delete[] chars;
 
-	chars = new char[11]{ COMMAND_START,'F','A','C','O','N','T','-','1','0',COMMAND_END };
+	chars[0] = COMMAND_START;
+	chars[1] = 'F';
+	chars[2] = 'A';
+	chars[3] = 'C';
+	chars[4] = 'O';
+	chars[5] = 'N';
+	chars[6] = 'T';
+	chars[7] = '-';
+	chars[8] = '1';
+	chars[9] = '0';
+	chars[10] = COMMAND_END;
 	parsed = command.tryParse(chars, 11);
 	Asserts::AssertTrue("14) Parsed true", parsed);
 	Asserts::AssertEqual("15) Type is finger all", command.type(), CommandTypeEnum::FINGER_ALL);
 	Asserts::AssertEqual("16) Action is contract", command.action(), CommandActionEnum::CONTRACT);
 	Asserts::AssertEqual("17) Data is -10", command.data(), -10);
-	delete[] chars;
 
-	chars = new char[11]{ COMMAND_START,'F','A','C','O','N','T','-','a','0',COMMAND_END };
+	chars[0] = COMMAND_START;
+	chars[1] = 'F';
+	chars[2] = 'A';
+	chars[3] = 'S';
+	chars[4] = 'T';
+	chars[5] = 'O';
+	chars[6] = 'P';
+	chars[7] = '-';
+	chars[8] = 'a';
+	chars[9] = '0';
+	chars[10] = COMMAND_END;
 	parsed = command.tryParse(chars, 11);
 	Asserts::AssertFalse("18) Parsed false", parsed);
-	delete[] chars;
 
-	chars = new char[22]{ COMMAND_START,'F','A','C','O','N','T','-','a','0',COMMAND_END,COMMAND_START,'F','A','C','O','N','T','-','a','0',COMMAND_END };
+	chars[0] = COMMAND_START;
+	chars[1] = 'F';
+	chars[2] = 'A';
+	chars[3] = 'S';
+	chars[4] = 'T';
+	chars[5] = 'O';
+	chars[6] = 'P';
+	chars[7] = '-';
+	chars[8] = 'a';
+	chars[9] = '0';
+	chars[10] = COMMAND_END;
+	chars[11] = COMMAND_START;
+	chars[12] = 'F';
+	chars[13] = 'A';
+	chars[14] = 'S';
+	chars[15] = 'T';
+	chars[16] = 'O';
+	chars[17] = 'P';
+	chars[18] = '-';
+	chars[19] = 'a';
+	chars[20] = '0';
+	chars[21] = COMMAND_END;
 	parsed = command.tryParse(chars, 22);
 	Asserts::AssertFalse("19) Parsed false", parsed);
-	delete[] chars;
 }

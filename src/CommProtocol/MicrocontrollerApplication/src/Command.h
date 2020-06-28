@@ -1,5 +1,6 @@
 #pragma once
 #include "CommandConfig.h"
+#include "CommandConversions.h"
 
 class Command {
 public:
@@ -8,7 +9,7 @@ public:
 	Command(const Command& other);
 	~Command();
 
-	const bool tryParse(const char* chars, const int length);
+	const bool tryParse(const char chars[MAX_CHARACTERS_IN_BUFFER], const int length);
 	const enum CommandTypeEnum type() const;
 	const enum CommandActionEnum action() const;
 	const int data() const;
@@ -23,14 +24,14 @@ private:
 	int numericData;
 
 	template <class T>
-	const bool tryParseEnum(T& result, const char chars[], const int length, const int start, const int end, const EnumMap<T>* conversions, const int numConversions);
-	const bool tryParseInteger(int& result, const char chars[], const int length, const int start, const int end) const;
+	const bool tryParseEnum(T& result, const char chars[MAX_CHARACTERS_IN_BUFFER], const int length, const int start, const int end, const EnumMap<T>* conversions, const int numConversions);
+	const bool tryParseInteger(int& result, const char chars[MAX_CHARACTERS_IN_BUFFER], const int length, const int start, const int end) const;
 	const int exponent(const int base, const int exp) const;
 };
 
 // Tries to parse enum value from the next bytes in buffer. Returns true and sets result to parsed value if successful, returns false and leaves result in undefined state otherwise
 template <class T>
-const bool Command::tryParseEnum(T& result, const char chars[], const int length, const int start, const int end, const EnumMap<T>* conversions, const int numConversions) {
+const bool Command::tryParseEnum(T& result, const char chars[MAX_CHARACTERS_IN_BUFFER], const int length, const int start, const int end, const EnumMap<T>* conversions, const int numConversions) {
 	if (chars != nullptr && length > 0 && numConversions > 0) {
 		// Try to parse enum from chars using each conversion
 		for (int i = 0; i < numConversions; ++i) {

@@ -202,9 +202,9 @@ void BufferTest::BufferOverflowTest() {
 	bufferChar.push('c');
 	Asserts::AssertEqual("3) Buffer size 2", bufferChar.size(), 2);
 	const char* resultChar = bufferChar.peek();
-	Asserts::AssertEqual("4) Buffer peek equal 'a'", *resultChar, 'a');
+	Asserts::AssertEqual("4) Buffer peek equal 'b'", *resultChar, 'b');
 	resultChar = bufferChar.get(1);
-	Asserts::AssertEqual("5) Buffer peek equal 'a'", *resultChar, 'b');
+	Asserts::AssertEqual("5) Buffer peek equal 'c'", *resultChar, 'c');
 
 	Command command1{ CommandTypeEnum::ADMIN, CommandActionEnum::SET_CHAR_BUFFER_CLEAR_TIMER, 10 };
 	Command command2{ CommandTypeEnum::FINGER_ALL, CommandActionEnum::CONTRACT, 10 };
@@ -217,12 +217,12 @@ void BufferTest::BufferOverflowTest() {
 	bufferCommand.push(command3);
 	Asserts::AssertEqual("8) Buffer size 2", bufferCommand.size(), 2);
 	const Command* resultCommand = bufferCommand.peek();
-	Asserts::AssertEqual("9) Type is admin", resultCommand->type(), CommandTypeEnum::ADMIN);
-	Asserts::AssertEqual("10) Action is set char buffer timer", resultCommand->action(), CommandActionEnum::SET_CHAR_BUFFER_CLEAR_TIMER);
+	Asserts::AssertEqual("9) Type is finger all", resultCommand->type(), CommandTypeEnum::FINGER_ALL);
+	Asserts::AssertEqual("10) Action is contract", resultCommand->action(), CommandActionEnum::CONTRACT);
 	Asserts::AssertEqual("11) Data is 10", resultCommand->data(), 10);
 	resultCommand = bufferCommand.get(1);
 	Asserts::AssertEqual("12) Type is finger all", resultCommand->type(), CommandTypeEnum::FINGER_ALL);
-	Asserts::AssertEqual("13) Action is contract", resultCommand->action(), CommandActionEnum::CONTRACT);
-	Asserts::AssertEqual("14) Data is 10", resultCommand->data(), 10);
+	Asserts::AssertEqual("13) Action is stop", resultCommand->action(), CommandActionEnum::STOP);
+	Asserts::AssertEqual("14) Data is 0", resultCommand->data(), 0);
 }
 

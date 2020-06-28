@@ -12,7 +12,7 @@ public:
 	void setMovementCommandDuration(const int duration);
 	void setCharBufferClearTimeout(const int duration);
 	void setDefaultCommand(const Command& command);
-	void addChars(const unsigned long currentTime, const char* chars, const int length);
+	void addChars(const unsigned long currentTime, const char chars[MAX_CHARACTERS_IN_BUFFER], const int length);
 	const Command* next(const unsigned long currentTime);
 private:
 	struct BufferEnumMap {
@@ -36,7 +36,7 @@ private:
 	Timer charBufferClearTimer{ DEFAULT_CHAR_BUFFER_CLEAR_DURATION };
 	bool encounteredStart;
 	
-	const int dumpCharBuffer(char*& chars);
+	const int dumpCharBuffer(char chars[MAX_CHARACTERS_IN_BUFFER]);
 	void insertCommand(unsigned long currentTime, Command& command);
 	int getCommandTypeCount() const;
 };

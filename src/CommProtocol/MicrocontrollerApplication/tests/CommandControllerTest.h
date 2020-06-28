@@ -44,11 +44,10 @@ void CommandControllerTest::AddCharsEmptyTest() {
 	cout << "Add Chars Empty Test" << endl;
 	CommandController commandController;
 	unsigned long startTime = 1000;
-	const char* chars = new char[0]{};
+	char chars[MAX_CHARACTERS_IN_BUFFER];
 	commandController.addChars(startTime, chars, 0);
 	const Command* next = commandController.next(startTime);
 	Asserts::AssertEqual("1) Next command default", next->action(), CommandActionEnum::STOP);
-	delete[] chars;
 }
 
 void CommandControllerTest::AddCharsTimeoutTest() {
@@ -56,12 +55,17 @@ void CommandControllerTest::AddCharsTimeoutTest() {
 	CommandController commandController;
 	unsigned long startTime = 1000;
 
-	const char* chars = new char[8]{COMMAND_START, 'F','A','C','O','N','T'};
-	commandController.addChars(startTime, chars, 8);
-	delete[] chars;
-	chars = new char[1]{ COMMAND_END };
+	char chars[MAX_CHARACTERS_IN_BUFFER];
+	chars[0] = COMMAND_START;
+	chars[1] = 'F';
+	chars[2] = 'A';
+	chars[3] = 'C';
+	chars[4] = 'O';
+	chars[5] = 'N';
+	chars[6] = 'T';
+	commandController.addChars(startTime, chars, 7);
+	chars[1] = COMMAND_END;
 	commandController.addChars(startTime + 1000 + DEFAULT_CHAR_BUFFER_CLEAR_DURATION, chars, 1);
-	delete[] chars;
 	const Command* next = commandController.next(startTime + 1000 + DEFAULT_CHAR_BUFFER_CLEAR_DURATION);
 	Asserts::AssertEqual("3) Next command default", next->action(), CommandActionEnum::STOP);
 }
@@ -85,9 +89,18 @@ void CommandControllerTest::ValidCommandTest() {
 	CommandController commandController;
 	unsigned long startTime = 1000;
 
-	const char* chars = new char[11]{ COMMAND_START, 'F','A','C','O','N','T','1','0', COMMAND_END };
-	commandController.addChars(startTime, chars, 11);
-	delete[] chars;
+	char chars[MAX_CHARACTERS_IN_BUFFER];
+	chars[0] = COMMAND_START;
+	chars[1] = 'F';
+	chars[2] = 'A';
+	chars[3] = 'C';
+	chars[4] = 'O';
+	chars[5] = 'N';
+	chars[6] = 'T';
+	chars[7] = '1';
+	chars[8] = '0';
+	chars[9] = COMMAND_END;
+	commandController.addChars(startTime, chars, 10);
 	const Command* next = commandController.next(startTime);
 	Asserts::AssertEqual("1) Next command type finger all", next->type(), CommandTypeEnum::FINGER_ALL);
 	Asserts::AssertEqual("2) Next command action contract", next->action(), CommandActionEnum::CONTRACT);
@@ -102,12 +115,30 @@ void CommandControllerTest::ValidCommandTimeoutTest() {
 	CommandController commandController;
 	unsigned long startTime = 1000;
 
-	const char* chars = new char[11]{ COMMAND_START, 'F','A','C','O','N','T','1','0', COMMAND_END };
-	commandController.addChars(startTime, chars, 11);
-	delete[] chars;
-	chars = new char[11]{ COMMAND_START, 'F','A','C','O','N','T','2','2', COMMAND_END };
-	commandController.addChars(startTime, chars, 11);
-	delete[] chars;
+	char chars[MAX_CHARACTERS_IN_BUFFER];
+	chars[0] = COMMAND_START;
+	chars[1] = 'F';
+	chars[2] = 'A';
+	chars[3] = 'C';
+	chars[4] = 'O';
+	chars[5] = 'N';
+	chars[6] = 'T';
+	chars[7] = '1';
+	chars[8] = '0';
+	chars[9] = COMMAND_END;
+	commandController.addChars(startTime, chars, 10);
+	chars[0] = COMMAND_START;
+	chars[1] = 'F';
+	chars[2] = 'A';
+	chars[3] = 'C';
+	chars[4] = 'O';
+	chars[5] = 'N';
+	chars[6] = 'T';
+	chars[7] = '2';
+	chars[8] = '2';
+	chars[9] = COMMAND_END;
+	commandController.addChars(startTime, chars, 10);
+	
 	const Command* next = commandController.next(startTime);
 	Asserts::AssertEqual("1) Next command type finger all", next->type(), CommandTypeEnum::FINGER_ALL);
 	Asserts::AssertEqual("2) Next command action contract", next->action(), CommandActionEnum::CONTRACT);
@@ -131,9 +162,29 @@ void CommandControllerTest::SetCommandTimeoutTest() {
 	unsigned long startTime = 1000;
 	commandController.setMovementCommandDuration(100);
 
-	const char* chars = new char[22]{ COMMAND_START, 'F','A','E','X','T','D','2','2', COMMAND_END, COMMAND_START, 'F','A','E','X','T','D','1','0', COMMAND_END };
-	commandController.addChars(startTime, chars, 22);
-	delete[] chars;
+	char chars[MAX_CHARACTERS_IN_BUFFER];
+	chars[0] = COMMAND_START;
+	chars[1] = 'F';
+	chars[2] = 'A';
+	chars[3] = 'E';
+	chars[4] = 'X';
+	chars[5] = 'T';
+	chars[6] = 'D';
+	chars[7] = '2';
+	chars[8] = '2';
+	chars[9] = COMMAND_END;
+	chars[10] = COMMAND_START;
+	chars[11] = 'F';
+	chars[12] = 'A';
+	chars[13] = 'E';
+	chars[14] = 'X';
+	chars[15] = 'T';
+	chars[16] = 'D';
+	chars[17] = '1';
+	chars[18] = '0';
+	chars[19] = COMMAND_END;
+	commandController.addChars(startTime, chars, 20);
+
 	const Command* next = commandController.next(startTime);
 	Asserts::AssertEqual("1) Next command type finger all", next->type(), CommandTypeEnum::FINGER_ALL);
 	Asserts::AssertEqual("2) Next command action extend", next->action(), CommandActionEnum::EXTEND);
@@ -152,9 +203,29 @@ void CommandControllerTest::AdminCommandTimeoutTest() {
 	CommandController commandController;
 	unsigned long startTime = 1000;
 
-	const char* chars = new char[22]{ COMMAND_START, 'A','D','C','O','N','T','1','0', COMMAND_END, COMMAND_START, 'A','D','C','O','N','T','1','0', COMMAND_END };
-	commandController.addChars(startTime, chars, 22);
-	delete[] chars;
+	char chars[MAX_CHARACTERS_IN_BUFFER];
+	chars[0] = COMMAND_START;
+	chars[1] = 'A';
+	chars[2] = 'D';
+	chars[3] = 'C';
+	chars[4] = 'O';
+	chars[5] = 'N';
+	chars[6] = 'T';
+	chars[7] = '1';
+	chars[8] = '0';
+	chars[9] = COMMAND_END;
+	chars[10] = COMMAND_START;
+	chars[11] = 'A';
+	chars[12] = 'D';
+	chars[13] = 'C';
+	chars[14] = 'O';
+	chars[15] = 'N';
+	chars[16] = 'T';
+	chars[17] = '1';
+	chars[18] = '0';
+	chars[19] = COMMAND_END;
+	commandController.addChars(startTime, chars, 20);
+
 	const Command* next = commandController.next(startTime);
 	Asserts::AssertEqual("1) Next command type admin", next->type(), CommandTypeEnum::ADMIN);
 	Asserts::AssertEqual("2) Next command action contract", next->action(), CommandActionEnum::CONTRACT);
@@ -170,9 +241,29 @@ void CommandControllerTest::DifferentCommandTest() {
 	CommandController commandController;
 	unsigned long startTime = 1000;
 
-	const char* chars = new char[22]{ COMMAND_START, 'F','A','C','O','N','T','1','0', COMMAND_END, COMMAND_START, 'F','A','E','X','T','D','2','2', COMMAND_END };
-	commandController.addChars(startTime, chars, 22);
-	delete[] chars;
+	char chars[MAX_CHARACTERS_IN_BUFFER];
+	chars[0] = COMMAND_START;
+	chars[1] = 'F';
+	chars[2] = 'A';
+	chars[3] = 'C';
+	chars[4] = 'O';
+	chars[5] = 'N';
+	chars[6] = 'T';
+	chars[7] = '1';
+	chars[8] = '0';
+	chars[9] = COMMAND_END;
+	chars[10] = COMMAND_START;
+	chars[11] = 'F';
+	chars[12] = 'A';
+	chars[13] = 'E';
+	chars[14] = 'X';
+	chars[15] = 'T';
+	chars[16] = 'D';
+	chars[17] = '2';
+	chars[18] = '2';
+	chars[19] = COMMAND_END;
+	commandController.addChars(startTime, chars, 20);
+
 	const Command* next = commandController.next(startTime);
 	Asserts::AssertEqual("1) Next command type finger all", next->type(), CommandTypeEnum::FINGER_ALL);
 	Asserts::AssertEqual("2) Next command action extend", next->action(), CommandActionEnum::EXTEND);
@@ -184,9 +275,29 @@ void CommandControllerTest::CommandPriorityTest() {
 	CommandController commandController;
 	unsigned long startTime = 1000;
 
-	const char* chars = new char[22]{ COMMAND_START, 'F','A','E','X','T','D','2','2', COMMAND_END, COMMAND_START, 'A','D','C','O','N','T','1','0', COMMAND_END };
-	commandController.addChars(startTime, chars, 22);
-	delete[] chars;
+	char chars[MAX_CHARACTERS_IN_BUFFER];
+	chars[0] = COMMAND_START;
+	chars[1] = 'F';
+	chars[2] = 'A';
+	chars[3] = 'E';
+	chars[4] = 'X';
+	chars[5] = 'T';
+	chars[6] = 'D';
+	chars[7] = '2';
+	chars[8] = '2';
+	chars[9] = COMMAND_END;
+	chars[10] = COMMAND_START;
+	chars[11] = 'A';
+	chars[12] = 'D';
+	chars[13] = 'C';
+	chars[14] = 'O';
+	chars[15] = 'N';
+	chars[16] = 'T';
+	chars[17] = '1';
+	chars[18] = '0';
+	chars[19] = COMMAND_END;
+	commandController.addChars(startTime, chars, 20);
+
 	const Command* next = commandController.next(startTime);
 	Asserts::AssertEqual("1) Next command type admin", next->type(), CommandTypeEnum::ADMIN);
 	Asserts::AssertEqual("2) Next command action contract", next->action(), CommandActionEnum::CONTRACT);

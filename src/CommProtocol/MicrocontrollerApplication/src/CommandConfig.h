@@ -1,5 +1,4 @@
 #pragma once
-#include "EnumMap.h"
 
 // Type of command (what it is referring to)
 enum class CommandTypeEnum {
@@ -31,6 +30,3 @@ const int COMMAND_TYPE_LENGTH = 2;
 const int COMMAND_ACTION_LENGTH = 4;
 const int MAX_CHARACTERS_IN_BUFFER = 100;
 const int MAX_COMMANDS_IN_BUFFER = 10;
-extern EnumMap<CommandTypeEnum>* COMMAND_TYPE_CONVERSIONS;
-extern EnumMap<CommandActionEnum>* COMMAND_ACTION_CONVERSIONS;
-
