@@ -1,15 +1,14 @@
-/src/MicrocontrollerSupport/.vs
-/src/MicrocontrollerSupport/MicrocontrollerSupport.sln
-/src/MicrocontrollerSupport/MicrocontrollerSupport/*.vcxproj*
-/src/MicrocontrollerSupport/MicrocontrollerSupport/Debug/
-/src/MicrocontrollerSupport/Debug/
+/src/CommProtocol/MicrocontrollerApplication/*
+!/src/CommProtocol/MicrocontrollerApplication/old
+!/src/CommProtocol/MicrocontrollerApplication/src
+!/src/CommProtocol/MicrocontrollerApplication/tests
+
+/src/WindowsApplication/*
+!/src/WindowsApplication/Command
+!/src/WindowsApplication/Transmission
+!/src/WindowsApplication/*.cs
+!/src/WindowsApplication/*.resx
+!/src/WindowsApplication/*.config
 
 /src/HandController/*
 !/src/HandController/*.ino
-
-/src/WindowsApplication/*
-!/src/WindowsApplication/WindowsApplication
-/src/WindowsApplication/WindowsApplication/WindowsApplication.csproj
-/src/WindowsApplication/WindowsApplication/bin
-/src/WindowsApplication/WindowsApplication/obj
-/src/WindowsApplication/WindowsApplication/App.config
