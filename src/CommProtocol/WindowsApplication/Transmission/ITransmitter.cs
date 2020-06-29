@@ -11,12 +11,12 @@ namespace Transmission
         /// Send text to transmission target.
         /// </summary>
         /// <param name="text"></param>
-        bool Send(String text);
+        string Send(String text);
 
         /// <summary>
         /// Read string from transmission target.
         /// </summary>
         /// <returns></returns>
-        String Read();
+        string Read();
     }
 }

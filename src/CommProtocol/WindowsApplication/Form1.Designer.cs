@@ -36,17 +36,26 @@
             this.aLabelPortName = new System.Windows.Forms.Label();
             this.aLabelBaudRate = new System.Windows.Forms.Label();
             this.aGroupConnection = new System.Windows.Forms.GroupBox();
+            this.aButtonDisconnect = new System.Windows.Forms.Button();
             this.aRefreshButton = new System.Windows.Forms.Button();
             this.aTrackBarSpeed = new System.Windows.Forms.TrackBar();
             this.aGroupControls = new System.Windows.Forms.GroupBox();
+            this.aLabelSetCharBufferTimeout = new System.Windows.Forms.Label();
+            this.aButtonSetCharBufferTimeout = new System.Windows.Forms.Button();
+            this.aTextboxSetCharBufferTimeout = new System.Windows.Forms.TextBox();
+            this.aLabelSetCommandTimer = new System.Windows.Forms.Label();
+            this.aButtonSetCommandTimer = new System.Windows.Forms.Button();
+            this.aTextboxSetCommandTimer = new System.Windows.Forms.TextBox();
+            this.aLabelSpeedValue = new System.Windows.Forms.Label();
             this.aButtonStop = new System.Windows.Forms.Button();
             this.aButtonExtend = new System.Windows.Forms.Button();
             this.aButtonContract = new System.Windows.Forms.Button();
             this.aLabelSpeed = new System.Windows.Forms.Label();
             this.aTextMicrocontroller = new System.Windows.Forms.TextBox();
-            this.aButtonDisconnect = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.aTimerMicrocontrollerOutput = new System.Windows.Forms.Timer(this.components);
+            this.aTimerContractButtonDown = new System.Windows.Forms.Timer(this.components);
+            this.aTimerExtendButtonDown = new System.Windows.Forms.Timer(this.components);
             this.aGroupConnection.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.aTrackBarSpeed)).BeginInit();
             this.aGroupControls.SuspendLayout();
@@ -130,6 +139,19 @@
             this.aGroupConnection.TabStop = false;
             this.aGroupConnection.Text = "Connection";
             // 
+            // aButtonDisconnect
+            // 
+            this.aButtonDisconnect.BackColor = System.Drawing.Color.LightSkyBlue;
+            this.aButtonDisconnect.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
+            this.aButtonDisconnect.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.aButtonDisconnect.Location = new System.Drawing.Point(22, 241);
+            this.aButtonDisconnect.Name = "aButtonDisconnect";
+            this.aButtonDisconnect.Size = new System.Drawing.Size(262, 30);
+            this.aButtonDisconnect.TabIndex = 12;
+            this.aButtonDisconnect.Text = "Disconnect";
+            this.aButtonDisconnect.UseVisualStyleBackColor = false;
+            this.aButtonDisconnect.Click += new System.EventHandler(this.aButtonDisconnect_Click);
+            // 
             // aRefreshButton
             // 
             this.aRefreshButton.BackColor = System.Drawing.Color.LightSkyBlue;
@@ -145,37 +167,112 @@
             // 
             // aTrackBarSpeed
             // 
-            this.aTrackBarSpeed.LargeChange = 1;
-            this.aTrackBarSpeed.Location = new System.Drawing.Point(22, 52);
-            this.aTrackBarSpeed.Maximum = 3;
-            this.aTrackBarSpeed.Minimum = 1;
+            this.aTrackBarSpeed.LargeChange = 3;
+            this.aTrackBarSpeed.Location = new System.Drawing.Point(15, 21);
+            this.aTrackBarSpeed.Maximum = 5;
+            this.aTrackBarSpeed.Minimum = 2;
             this.aTrackBarSpeed.Name = "aTrackBarSpeed";
-            this.aTrackBarSpeed.Size = new System.Drawing.Size(262, 56);
+            this.aTrackBarSpeed.Size = new System.Drawing.Size(188, 56);
             this.aTrackBarSpeed.TabIndex = 2;
             this.aTrackBarSpeed.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.aTrackBarSpeed.Value = 1;
+            this.aTrackBarSpeed.Value = 2;
+            this.aTrackBarSpeed.Scroll += new System.EventHandler(this.aTrackBarSpeed_Scroll);
             // 
             // aGroupControls
             // 
             this.aGroupControls.BackColor = System.Drawing.Color.Silver;
+            this.aGroupControls.Controls.Add(this.aLabelSetCharBufferTimeout);
+            this.aGroupControls.Controls.Add(this.aButtonSetCharBufferTimeout);
+            this.aGroupControls.Controls.Add(this.aTextboxSetCharBufferTimeout);
+            this.aGroupControls.Controls.Add(this.aLabelSetCommandTimer);
+            this.aGroupControls.Controls.Add(this.aButtonSetCommandTimer);
+            this.aGroupControls.Controls.Add(this.aTextboxSetCommandTimer);
+            this.aGroupControls.Controls.Add(this.aLabelSpeedValue);
             this.aGroupControls.Controls.Add(this.aButtonStop);
             this.aGroupControls.Controls.Add(this.aButtonExtend);
-            this.aGroupControls.Controls.Add(this.aTrackBarSpeed);
             this.aGroupControls.Controls.Add(this.aButtonContract);
             this.aGroupControls.Controls.Add(this.aLabelSpeed);
+            this.aGroupControls.Controls.Add(this.aTrackBarSpeed);
             this.aGroupControls.Location = new System.Drawing.Point(354, 24);
             this.aGroupControls.Name = "aGroupControls";
-            this.aGroupControls.Size = new System.Drawing.Size(307, 199);
+            this.aGroupControls.Size = new System.Drawing.Size(307, 291);
             this.aGroupControls.TabIndex = 12;
             this.aGroupControls.TabStop = false;
             this.aGroupControls.Text = "Movement Controls";
+            // 
+            // aLabelSetCharBufferTimeout
+            // 
+            this.aLabelSetCharBufferTimeout.AutoSize = true;
+            this.aLabelSetCharBufferTimeout.Location = new System.Drawing.Point(19, 218);
+            this.aLabelSetCharBufferTimeout.Name = "aLabelSetCharBufferTimeout";
+            this.aLabelSetCharBufferTimeout.Size = new System.Drawing.Size(135, 17);
+            this.aLabelSetCharBufferTimeout.TabIndex = 19;
+            this.aLabelSetCharBufferTimeout.Text = "Char Buffer Timeout";
+            // 
+            // aButtonSetCharBufferTimeout
+            // 
+            this.aButtonSetCharBufferTimeout.BackColor = System.Drawing.Color.LightSkyBlue;
+            this.aButtonSetCharBufferTimeout.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
+            this.aButtonSetCharBufferTimeout.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.aButtonSetCharBufferTimeout.Location = new System.Drawing.Point(157, 238);
+            this.aButtonSetCharBufferTimeout.Name = "aButtonSetCharBufferTimeout";
+            this.aButtonSetCharBufferTimeout.Size = new System.Drawing.Size(127, 30);
+            this.aButtonSetCharBufferTimeout.TabIndex = 18;
+            this.aButtonSetCharBufferTimeout.Text = "Set";
+            this.aButtonSetCharBufferTimeout.UseVisualStyleBackColor = false;
+            this.aButtonSetCharBufferTimeout.Click += new System.EventHandler(this.aButtonSetCharBufferTimeout_Click);
+            // 
+            // aTextboxSetCharBufferTimeout
+            // 
+            this.aTextboxSetCharBufferTimeout.Location = new System.Drawing.Point(22, 242);
+            this.aTextboxSetCharBufferTimeout.Name = "aTextboxSetCharBufferTimeout";
+            this.aTextboxSetCharBufferTimeout.Size = new System.Drawing.Size(127, 22);
+            this.aTextboxSetCharBufferTimeout.TabIndex = 17;
+            // 
+            // aLabelSetCommandTimer
+            // 
+            this.aLabelSetCommandTimer.AutoSize = true;
+            this.aLabelSetCommandTimer.Location = new System.Drawing.Point(19, 152);
+            this.aLabelSetCommandTimer.Name = "aLabelSetCommandTimer";
+            this.aLabelSetCommandTimer.Size = new System.Drawing.Size(182, 17);
+            this.aLabelSetCommandTimer.TabIndex = 16;
+            this.aLabelSetCommandTimer.Text = "Command Frequency Timer";
+            // 
+            // aButtonSetCommandTimer
+            // 
+            this.aButtonSetCommandTimer.BackColor = System.Drawing.Color.LightSkyBlue;
+            this.aButtonSetCommandTimer.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
+            this.aButtonSetCommandTimer.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.aButtonSetCommandTimer.Location = new System.Drawing.Point(157, 172);
+            this.aButtonSetCommandTimer.Name = "aButtonSetCommandTimer";
+            this.aButtonSetCommandTimer.Size = new System.Drawing.Size(127, 30);
+            this.aButtonSetCommandTimer.TabIndex = 15;
+            this.aButtonSetCommandTimer.Text = "Set";
+            this.aButtonSetCommandTimer.UseVisualStyleBackColor = false;
+            this.aButtonSetCommandTimer.Click += new System.EventHandler(this.aButtonSetCommandTimer_Click);
+            // 
+            // aTextboxSetCommandTimer
+            // 
+            this.aTextboxSetCommandTimer.Location = new System.Drawing.Point(22, 176);
+            this.aTextboxSetCommandTimer.Name = "aTextboxSetCommandTimer";
+            this.aTextboxSetCommandTimer.Size = new System.Drawing.Size(127, 22);
+            this.aTextboxSetCommandTimer.TabIndex = 14;
+            // 
+            // aLabelSpeedValue
+            // 
+            this.aLabelSpeedValue.AutoSize = true;
+            this.aLabelSpeedValue.Location = new System.Drawing.Point(264, 35);
+            this.aLabelSpeedValue.Name = "aLabelSpeedValue";
+            this.aLabelSpeedValue.Size = new System.Drawing.Size(16, 17);
+            this.aLabelSpeedValue.TabIndex = 13;
+            this.aLabelSpeedValue.Text = "2";
             // 
             // aButtonStop
             // 
             this.aButtonStop.BackColor = System.Drawing.Color.IndianRed;
             this.aButtonStop.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
             this.aButtonStop.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.aButtonStop.Location = new System.Drawing.Point(22, 150);
+            this.aButtonStop.Location = new System.Drawing.Point(22, 104);
             this.aButtonStop.Name = "aButtonStop";
             this.aButtonStop.Size = new System.Drawing.Size(262, 30);
             this.aButtonStop.TabIndex = 12;
@@ -188,31 +285,33 @@
             this.aButtonExtend.BackColor = System.Drawing.Color.LightSkyBlue;
             this.aButtonExtend.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
             this.aButtonExtend.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.aButtonExtend.Location = new System.Drawing.Point(157, 114);
+            this.aButtonExtend.Location = new System.Drawing.Point(157, 68);
             this.aButtonExtend.Name = "aButtonExtend";
             this.aButtonExtend.Size = new System.Drawing.Size(127, 30);
             this.aButtonExtend.TabIndex = 11;
             this.aButtonExtend.Text = "Extend";
             this.aButtonExtend.UseVisualStyleBackColor = false;
-            this.aButtonExtend.Click += new System.EventHandler(this.aButtonExtend_Click);
+            this.aButtonExtend.MouseDown += new System.Windows.Forms.MouseEventHandler(this.aButtonExtend_MouseDown);
+            this.aButtonExtend.MouseUp += new System.Windows.Forms.MouseEventHandler(this.aButtonExtend_MouseUp);
             // 
             // aButtonContract
             // 
             this.aButtonContract.BackColor = System.Drawing.Color.LightSkyBlue;
             this.aButtonContract.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
             this.aButtonContract.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.aButtonContract.Location = new System.Drawing.Point(22, 114);
+            this.aButtonContract.Location = new System.Drawing.Point(22, 68);
             this.aButtonContract.Name = "aButtonContract";
             this.aButtonContract.Size = new System.Drawing.Size(127, 30);
             this.aButtonContract.TabIndex = 10;
             this.aButtonContract.Text = "Contract";
             this.aButtonContract.UseVisualStyleBackColor = false;
-            this.aButtonContract.Click += new System.EventHandler(this.aButtonContract_Click);
+            this.aButtonContract.MouseDown += new System.Windows.Forms.MouseEventHandler(this.aButtonContract_MouseDown);
+            this.aButtonContract.MouseUp += new System.Windows.Forms.MouseEventHandler(this.aButtonContract_MouseUp);
             // 
             // aLabelSpeed
             // 
             this.aLabelSpeed.AutoSize = true;
-            this.aLabelSpeed.Location = new System.Drawing.Point(19, 32);
+            this.aLabelSpeed.Location = new System.Drawing.Point(209, 35);
             this.aLabelSpeed.Name = "aLabelSpeed";
             this.aLabelSpeed.Size = new System.Drawing.Size(49, 17);
             this.aLabelSpeed.TabIndex = 9;
@@ -227,19 +326,6 @@
             this.aTextMicrocontroller.Size = new System.Drawing.Size(482, 403);
             this.aTextMicrocontroller.TabIndex = 13;
             // 
-            // aButtonDisconnect
-            // 
-            this.aButtonDisconnect.BackColor = System.Drawing.Color.LightSkyBlue;
-            this.aButtonDisconnect.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
-            this.aButtonDisconnect.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.aButtonDisconnect.Location = new System.Drawing.Point(22, 241);
-            this.aButtonDisconnect.Name = "aButtonDisconnect";
-            this.aButtonDisconnect.Size = new System.Drawing.Size(262, 30);
-            this.aButtonDisconnect.TabIndex = 12;
-            this.aButtonDisconnect.Text = "Disconnect";
-            this.aButtonDisconnect.UseVisualStyleBackColor = false;
-            this.aButtonDisconnect.Click += new System.EventHandler(this.aButtonDisconnect_Click);
-            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.aTextMicrocontroller);
@@ -248,13 +334,21 @@
             this.groupBox1.Size = new System.Drawing.Size(535, 461);
             this.groupBox1.TabIndex = 14;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Microcontroller Information";
+            this.groupBox1.Text = "Microcontroller Output";
             // 
             // aTimerMicrocontrollerOutput
             // 
             this.aTimerMicrocontrollerOutput.Enabled = true;
             this.aTimerMicrocontrollerOutput.Interval = 5000;
             this.aTimerMicrocontrollerOutput.Tick += new System.EventHandler(this.aTimerMicrocontrollerOutput_Tick);
+            // 
+            // aTimerContractButtonDown
+            // 
+            this.aTimerContractButtonDown.Tick += new System.EventHandler(this.aTimerContractButtonDown_Tick);
+            // 
+            // aTimerExtendButtonDown
+            // 
+            this.aTimerExtendButtonDown.Tick += new System.EventHandler(this.aTimerExtendButtonDown_Tick);
             // 
             // aHandControllerForm
             // 
@@ -301,6 +395,15 @@
         private System.Windows.Forms.TextBox aTextMicrocontroller;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Timer aTimerMicrocontrollerOutput;
+        private System.Windows.Forms.Label aLabelSpeedValue;
+        private System.Windows.Forms.Label aLabelSetCharBufferTimeout;
+        private System.Windows.Forms.Button aButtonSetCharBufferTimeout;
+        private System.Windows.Forms.TextBox aTextboxSetCharBufferTimeout;
+        private System.Windows.Forms.Label aLabelSetCommandTimer;
+        private System.Windows.Forms.Button aButtonSetCommandTimer;
+        private System.Windows.Forms.TextBox aTextboxSetCommandTimer;
+        private System.Windows.Forms.Timer aTimerContractButtonDown;
+        private System.Windows.Forms.Timer aTimerExtendButtonDown;
     }
 }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Ports;
+using System.Linq.Expressions;
 
 namespace Transmission
 {
@@ -13,16 +14,6 @@ namespace Transmission
         /// The port to which the microcontroller is connected.
         /// </summary>
         private SerialPort Port;
-
-        /// <summary>
-        /// How many milliseconds to wait for write to finish.
-        /// </summary>
-        private readonly int WriteTimeout;
-
-        /// <summary>
-        /// How many milliseconds to wait for read to finish.
-        /// </summary>
-        private readonly int ReadTimeout;
 
         /// <summary>
         /// List of available port names.
@@ -38,7 +29,6 @@ namespace Transmission
                 }
                 catch (System.ComponentModel.Win32Exception e)
                 {
-                    Console.WriteLine("Unable to get list of available ports: " + e);
                     return null;
                 }
             }
@@ -58,41 +48,69 @@ namespace Transmission
         /// Initializes read and write timeouts for transmitter.
         /// </summary>
         public SerialTransmitter(int writeTimeout = 500, int readTimeout = 500) {
-            this.WriteTimeout = writeTimeout;
-            this.ReadTimeout = readTimeout;
+            this.Port = new SerialPort
+            {
+                ReadTimeout = readTimeout,
+                WriteTimeout = writeTimeout
+            };
+        }
+
+        /// <summary>
+        /// Opens port if not already opened.
+        /// </summary>
+        public string Connect(string portName, int baudRate)
+        {
+            if (this.Port.PortName != portName || this.Port.BaudRate != baudRate)
+            {
+                this.Disconnect();
+                this.Port.PortName = portName;
+                this.Port.BaudRate = baudRate;
+            }
+
+            if (!this.Port.IsOpen)
+            {
+                try
+                {
+                    this.Port.Open();
+                    return "Opened port " + portName + "[" + baudRate + "]" + Environment.NewLine;
+                }
+                catch (Exception e) // IOException, UnauthorizedAccessException
+                {
+                    this.Disconnect();
+                    return "Failed to open port " + portName + "[" + baudRate + "]:" + e.Message + Environment.NewLine;
+                }
+            }
+            else
+            {
+                return "Port " + portName + "[" + baudRate + "] already open." + Environment.NewLine;
+            }
+        }
+
+        public string Disconnect()
+        {
+            if (this.Port.IsOpen)
+            {
+                this.Port.Close();
+                return "Closed port " + this.Port.PortName + "[" + this.Port.BaudRate + "]" + Environment.NewLine;
+            }
+
+            return "Failed to close: port not open" + Environment.NewLine;
         }
 
         /// <summary>
         /// Send string over serial.
         /// </summary>
         /// <param name="text"></param>
-        public bool Send(String text)
+        public string Send(string text)
         {
-            // Reopen port in case it closed and return false if failed.
-            if (!this.IsPortOpen())
-            {
-                return false;
-            }
-
             try
             {
                 this.Port.Write(text);
-                return true;
+                return "Successfully sent \"" + text + "\" to port " + this.Port.PortName + "[" + this.Port.BaudRate + "]" + Environment.NewLine;
             }
-            catch (InvalidOperationException e)
+            catch (Exception e) // ArgumentNullException, TimeoutException
             {
-                Console.WriteLine("Unable to read from serial because of port error: " + e.ToString());
-                return false;
-            }
-            catch (ArgumentNullException e)
-            {
-                Console.WriteLine("Text to send is null: " + e.ToString());
-                return false;
-            }
-            catch (TimeoutException e)
-            {
-                Console.WriteLine("Unable to read from serial because of timeout error: " + e.ToString());
-                return false;
+                return "Failed to send \"" + text + "\": " + e.Message + Environment.NewLine;
             }
         }
 
@@ -102,94 +120,14 @@ namespace Transmission
         /// <returns></returns>
         public String Read()
         {
-            // Reopen port in case it was closed, and return null if failed
-            if (!this.IsPortOpen())
-            {
-                return null;
-            }
-
             try
             {
-                return this.Port.ReadLine();
+                return this.Port.ReadExisting();
             }
-            catch (InvalidOperationException e)
+            catch (Exception e) // InvalidOperationException, TimeoutException, IOException
             {
-                Console.WriteLine("Unable to read from serial because of port error: " + e.ToString());
-                return null;
+                return "Failed to read: " + e.Message + Environment.NewLine;
             }
-            catch (TimeoutException e)
-            {
-                Console.WriteLine("Unable to read from serial because of timeout error: " + e.ToString());
-                return null; 
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine("Unable to read from serial because of connection error: " + e.ToString());
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Opens port if not already opened, and returns true if successful. Returns false otherwise.
-        /// </summary>
-        public bool OpenSerialPort(String portName, int baudRate)
-        {
-            // Don't do anything if correct port is already open
-            if (this.IsPortOpen() && portName == this.Port.PortName && baudRate == this.Port.BaudRate)
-            {
-                return true;
-            }
-
-            // Close port if already opened
-            this.CloseSerialPort();
-
-            try
-            {
-                this.Port = new SerialPort()
-                {
-                    PortName = portName,
-                    BaudRate = baudRate,
-                    ReadTimeout = this.ReadTimeout,
-                    WriteTimeout = this.WriteTimeout
-                };
-
-                this.Port.Open();
-                return true;
-            }
-            catch (UnauthorizedAccessException e)
-            {
-                // If provided port name is unknown, or unable to open port
-                Console.WriteLine("Unable to open serial port " + portName + " at baud rate " + baudRate + " with error: " + e);
-                this.CloseSerialPort();
-                return false;
-            }
-            catch (IOException e)
-            {
-                // If provided port name is unknown, or unable to open port
-                Console.WriteLine("Unable to open serial port " + portName + " at baud rate " + baudRate + " with error: " + e);
-                this.CloseSerialPort();
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Closes port if it is open.
-        /// </summary>
-        public void CloseSerialPort()
-        {
-            if (this.Port != null)
-            {
-                this.Port.Close();
-            }
-        }
-
-        /// <summary>
-        /// Returns true if serial port is open, false otherwise
-        /// </summary>
-        /// <returns></returns>
-        public bool IsPortOpen()
-        {
-            return this.Port != null && this.Port.IsOpen;
         }
     }
 }

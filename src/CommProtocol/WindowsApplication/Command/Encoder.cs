@@ -40,18 +40,14 @@ namespace Commands
             this.TypeConversions = new Dictionary<CommandTypeEnum, String>
             {
                 [CommandTypeEnum.ADMIN] = "AD",
-                [CommandTypeEnum.FINGER_ALL] = "FA",
-                [CommandTypeEnum.FINGER_INDEX] = "FI",
-                [CommandTypeEnum.FINGER_LITTLE] = "FL",
-                [CommandTypeEnum.FINGER_MIDDLE] = "FM",
-                [CommandTypeEnum.FINGER_RING] = "FR",
-                [CommandTypeEnum.FINGER_THUMB] = "FT"
+                [CommandTypeEnum.FINGER_ALL] = "FA"
             };
 
             // Initialize conversions between command action enum value and characters sent to microcontroller.
             this.ActionConversions = new Dictionary<CommandActionEnum, String>
             {
-                [CommandActionEnum.LIST_BUFFER] = "PRNT",
+                [CommandActionEnum.SET_MOVEMENT_COMMAND_TIMER] = "TIMM",
+                [CommandActionEnum.SET_CHAR_BUFFER_CLEAR_TIMER] = "TIMC",
                 [CommandActionEnum.STOP] = "STOP",
                 [CommandActionEnum.CONTRACT] = "CONT",
                 [CommandActionEnum.EXTEND] = "EXTD",

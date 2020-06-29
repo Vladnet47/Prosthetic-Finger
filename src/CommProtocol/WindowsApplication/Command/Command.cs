@@ -7,15 +7,8 @@ namespace Commands
     /// </summary>
     enum CommandTypeEnum {
         UNDEFINED,
-
         ADMIN,
-
         FINGER_ALL,
-        FINGER_INDEX,
-        FINGER_MIDDLE,
-        FINGER_RING,
-        FINGER_LITTLE,
-        FINGER_THUMB
     }
 
     /// <summary>
@@ -23,9 +16,8 @@ namespace Commands
     /// </summary>
     enum CommandActionEnum {
         UNDEFINED,
-
-        LIST_BUFFER,
-
+        SET_MOVEMENT_COMMAND_TIMER,
+        SET_CHAR_BUFFER_CLEAR_TIMER,
         STOP,
         CONTRACT,
         EXTEND
